@@ -1,8 +1,9 @@
-import pandas as pd
+import polars as pl
 
 
-def load_csv_to_dataframe(file_path: str) -> pd.DataFrame:
+def load_large_csv_polars(path: str) -> pl.DataFrame:
     """
     Load a CSV file into a pandas DataFrame and returns it.
+    Using Polars for better performance on large files.
     """
-    return pd.read_csv(file_path)
+    return pl.read_csv(path)
