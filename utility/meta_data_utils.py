@@ -54,17 +54,15 @@ def get_gunning_fog_index(text: str) -> float:
     return textstat.gunning_fog(text)
 
 
-if __name__ == "__main__":
-    sample_text = (
-        "This is a sample text. It contains sev eral sentences! "
-        "Does it work well? Let's se how it performs."
-    )
-
-    print("Word Count:", get_word_count(sample_text))
-    print("Character Count:", get_character_count(sample_text))
-    print("Lexical Diversity:", get_lexical_diversity(sample_text))
-    print("Average Sentence Length:", get_avg_sentence_length(sample_text))
-    print("Average Word Length:", get_avg_word_length(sample_text))
-    print("Flesch Reading Ease:", get_flesch_reading_ease(sample_text))
-    print("Gunning Fog Index:", get_gunning_fog_index(sample_text))
-    print("Punctuation Ratio:", get_punctuation_ratio(sample_text))
+def calculate_metadata(text: str) -> dict:
+    """Calculate various metadata statistics for the given text."""
+    return {
+        "word_count": get_word_count(text),
+        "character_count": get_character_count(text),
+        "lexical_diversity": get_lexical_diversity(text),
+        "avg_sentence_length": get_avg_sentence_length(text),
+        "avg_word_length": get_avg_word_length(text),
+        "flesch_reading_ease": get_flesch_reading_ease(text),
+        "gunning_fog_index": get_gunning_fog_index(text),
+        "punctuation_ratio": get_punctuation_ratio(text),
+    }
