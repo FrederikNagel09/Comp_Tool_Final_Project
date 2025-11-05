@@ -1,4 +1,18 @@
 
+- Skriv en data section + motivation + problem i overleaf.
 
+- Implementer TF.IDF
+    - Skal tage en text som input og spytte en embedding ud. 
+    - embedding vector skal have samme længde uanset hvro lang vores tekst er. 
+
+- Lav DL embedding metode
+
+- Check data samples are unique
+
+- Prep data. 
+
+- Implementer clustering method
+
+- Implementer ny clustering method. 
 
 
