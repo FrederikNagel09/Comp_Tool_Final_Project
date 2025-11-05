@@ -1,18 +1,22 @@
 
-- Skriv en data section + motivation + problem i overleaf.
+- (Sille)  Skriv en data section + motivation + problem i overleaf.
 
-- Implementer TF.IDF
+- (Rasmus)  Implementer TF.IDF
     - Skal tage en text som input og spytte en embedding ud. 
     - embedding vector skal have samme længde uanset hvro lang vores tekst er. 
 
-- Lav DL embedding metode
+- ( ?????? Lav DL embedding metode ????? ) 
 
-- Check data samples are unique
+- (Frederik) Check data samples are unique
 
-- Prep data. 
+- (Frederik) Prep data. 
 
-- Implementer clustering method
+- (Marius) Implementer course clustering method + Davies-Bouldin index
 
-- Implementer ny clustering method. 
+- (Frederik) Implementer ny clustering method. 
+
+- (Rasmus)  Rasmus snakker med TA
+
+- 
 
 

@@ -3,15 +3,21 @@ from utility.meta_data_utils import calculate_metadata
 
 if __name__ == "__main__":
     # Example usage
+<<<<<<< HEAD
     df = get_csv_dataframe("Comp_Tool_Final_Project/data/AI_Human.csv")
 
     
     #Sample 1471 is AI generated
+=======
+    df = get_csv_dataframe("data/AI_Human.csv")
+
+    # Sample 1471 is AI generated
+>>>>>>> 5e2e94e30241eb96f6621384cafa7fe8bf033ced
     n = 1471
     sample_text = df["text"][n]
-    label = df['generated'][n]
+    label = df["generated"][n]
     metadata = calculate_metadata(sample_text)
-    
+
     print("Text sample:\n", sample_text)
 
     print("\nCalculated Metadata:")
@@ -19,6 +25,7 @@ if __name__ == "__main__":
         print(f"{key}: {value}")
 
     print("\nAI generated: ", label)
+<<<<<<< HEAD
 
 import pandas as pd
 
@@ -74,3 +81,5 @@ if __name__ == "__main__":
     print("\nAverage Metadata for Human-generated texts:")
     for key, value in human_metadata_avg.items():
         print(f"{key}: {value}")
+=======
+>>>>>>> 5e2e94e30241eb96f6621384cafa7fe8bf033ced
