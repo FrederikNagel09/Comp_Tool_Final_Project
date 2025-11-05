@@ -22,3 +22,17 @@ run in terminal:
 make check
 - This runs both ruff format and ruff check, automatically formatting code to industry standards and giving warnings where changes should be made to follow proper formatting and good coding etiquette.
 
+
+
+## Project Ideas: 
+- TF-IDF → LogisticRegression
+    - Could be graph with k-means classification instead of logisticregression
+    - Could be more powerfull DL model than logistic regression
+    - TF-IDF: teat every text sample as a "document" and use it to create an embedding vector for each text
+
+- Use other embedding method + some classification method
+
+
+
+
+
