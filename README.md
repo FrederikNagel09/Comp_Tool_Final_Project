@@ -46,4 +46,4 @@ This is the big dataset
 
 - We could use the big + one other to train and the others to validate? 
 - We do need to check that none of the text samples across all datasets are identical.
-- Look at code section in kaggle of each dataset and find inspiration of what others have done
+- Look at code section in kaggle of each dataset and find inspiration of what others have done. 

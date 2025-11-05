@@ -1,6 +1,8 @@
 import re
 import textstat
 
+#list of things to count
+
 
 def get_word_count(text: str) -> int:
     """Total number of words in the text."""
@@ -18,11 +20,19 @@ def get_sentence_count(text: str) -> int:
     return len(sentences)
 
 
+def get_amount_of_paragraphs(text:str) -> float:
+    """Total number of paragraphs in the text."""
+    paragraphs = [p for p in re.split(r"\n\s*\n", text.strip()) if p.strip()]
+    return float(len(paragraphs))
+
+def get_amount_syllables(text: str) -> float:
+    """Total Number of syllables"""
+    return float(textstat.syllable_count(text))
+
 def get_lexical_diversity(text: str) -> float:
     """Ratio of unique words to total words (0-1)."""
     words = re.findall(r"\b\w+\b", text.lower())
     return len(set(words)) / len(words) if words else 0.0
-
 
 def get_avg_sentence_length(text: str) -> float:
     """Average number of words per sentence."""
@@ -47,11 +57,11 @@ def get_flesch_reading_ease(text: str) -> float:
     """Flesch Reading Ease score (0-100, higher = easier)."""
     return textstat.flesch_reading_ease(text)
 
-
 def get_gunning_fog_index(text: str) -> float:
     """Gunning Fog readability index (grade level required)."""
     return textstat.gunning_fog(text)
 
+ 
 
 def calculate_metadata(text: str) -> dict:
     """Calculate various metadata statistics for the given text."""
