@@ -32,7 +32,18 @@ make check
 
 - Use other embedding method + some classification method
 
+- Use confusion matrix to showcase accuracy of classification
 
 
 
+## Datasets: 
+- https://www.kaggle.com/datasets/navjotkaushal/human-vs-ai-generated-essays/data
+- https://www.kaggle.com/datasets/pratyushpuri/ai-vs-human-content-detection-1000-record-in-2025
+- https://www.kaggle.com/datasets/denvermagtibay/ai-generated-essays-dataset
 
+This is the big dataset
+- https://www.kaggle.com/datasets/shanegerami/ai-vs-human-text
+
+- We could use the big + one other to train and the others to validate? 
+- We do need to check that none of the text samples across all datasets are identical.
+- Look at code section in kaggle of each dataset and find inspiration of what others have done
