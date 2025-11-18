@@ -3,6 +3,7 @@ from collections import defaultdict
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+import pickle
 
 class LSH_AI_Detector:
     def __init__(self, num_hash_tables=10, num_hash_bits=16):
@@ -92,6 +93,16 @@ class LSH_AI_Detector:
 
         votes = self.y[neighbors]
         return np.mean(votes)
+    
+    def save_hash_tables(self, path = "data/hash_tables.pkl"):
+        "Saves the hash tables to be loaded later"
+        with open(path, "wb") as f:
+            pickle.dump(self.hash_tables, f)
+
+    def load_hash_tables(self, path = "data/hash_tables.pkl"):
+        "Load already made hash tables"
+        with open(path, "rb") as f:
+            self.hash_tables = pickle.load(f)
 
 
 if __name__ == "__main__":
@@ -123,3 +134,6 @@ if __name__ == "__main__":
 
     print("")
     print(f"Accuracy: {sum/len(y_test)}")
+
+    #save hash_table
+    detector.save_hash_tables("data/hash_tables.pkl")
