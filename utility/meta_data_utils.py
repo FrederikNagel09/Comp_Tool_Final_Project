@@ -19,16 +19,44 @@ def get_sentence_count(text: str) -> int:
     sentences = [s for s in re.split(r"[.!?]+", text) if s.strip()]
     return len(sentences)
 
+def get_relative_sentence_count(text: str) -> float:
+    """
+    Average number of words per sentence in the text.
+    """
+    word_count = get_word_count(text)
+    sentence_count = get_sentence_count(text)
+
+    return word_count / sentence_count
+
 
 def get_amount_of_paragraphs(text: str) -> float:
     """Total number of paragraphs in the text."""
     paragraphs = [p for p in re.split(r"\n\s*\n", text.strip()) if p.strip()]
     return float(len(paragraphs))
 
+def get_relative_paragraph_count(text: str) -> float:
+    """
+    Average number of words per paragraph in the text.
+    """
+    word_count = get_word_count(text)
+    paragraph_count = get_amount_of_paragraphs(text)
+
+
+    return word_count / paragraph_count
+
 
 def get_amount_syllables(text: str) -> float:
     """Total Number of syllables"""
     return float(textstat.syllable_count(text))
+
+def get_relative_syllable_count(text: str) -> float:
+    """
+    Average number of syllables per word in the text
+    """
+    syllable_count = get_amount_syllables(text)
+    word_count = get_word_count(text)
+
+    return syllable_count / word_count
 
 
 def get_lexical_diversity(text: str) -> float:
@@ -78,3 +106,20 @@ def calculate_metadata(text: str) -> dict:
         "gunning_fog_index": get_gunning_fog_index(text),
         "punctuation_ratio": get_punctuation_ratio(text),
     }
+
+def meta_data_vectorrize(text: str) -> list[float]:
+    """Return a numeric embedding vector for the text."""
+
+    return [
+        get_relative_sentence_count(text),
+        get_relative_paragraph_count(text),
+        get_relative_syllable_count(text),
+
+        get_lexical_diversity(text),
+        get_avg_sentence_length(text),
+        get_avg_word_length(text),
+        get_punctuation_ratio(text),
+
+        get_flesch_reading_ease(text),
+        get_gunning_fog_index(text),
+    ]
