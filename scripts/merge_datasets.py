@@ -11,13 +11,15 @@ sys.path.append(str(ROOT_DIR))
 from utility.file_utils import get_csv_dataframe  # noqa: E402
 from utility.meta_data_utils import calculate_metadata  # noqa: E402
 
+
 def add_metadata(df: pl.DataFrame) -> pl.DataFrame:
     """Compute metadata for all rows in a dataframe with a progress bar."""
     metadata_dicts = [calculate_metadata(text) for text in tqdm(df["text"].to_list(), desc="Calculating metadata")]
     metadata_df = pl.DataFrame(metadata_dicts)
     return df.hstack(metadata_df)
 
-if __name__ == "__main__":
+
+def merge_datasets():
     # Load datasets
     df_ai_human = get_csv_dataframe("data/AI_Human.csv")
     df_ai_human_content = get_csv_dataframe("data/ai_human_content_detection_dataset.csv")
@@ -52,14 +54,22 @@ if __name__ == "__main__":
     ).rename({"text_content": "text", "label": "generated"})
 
     # Compute metadata for datasets that don't have it
-    #df_ai_human = add_metadata(df_ai_human)
+    df_ai_human = add_metadata(df_ai_human)
     df_ai_generated = add_metadata(df_ai_generated)
     df_balanced = add_metadata(df_balanced)
 
     # Merge all datasets
     merged_df = pl.concat(
-        [df_ai_generated, df_balanced, df_ai_human_content], how="vertical"
+        [df_ai_human, df_ai_generated, df_balanced, df_ai_human_content], how="vertical"
     )
+
+    return merged_df
+
+    
+
+if __name__ == "__main__":
+    
+    merged_df = merge_datasets()
 
     # Save to CSV in current directory
     merged_df.write_csv("merged_dataset_with_metadata.csv")

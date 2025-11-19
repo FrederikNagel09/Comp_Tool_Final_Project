@@ -23,7 +23,7 @@ import pandas as pd
 
 if __name__ == "__main__":
     # Load the dataframe
-    df = pd.read_csv("Comp_Tool_Final_Project/data/AI_Human.csv")  # Ensure correct loading
+    df = pd.read_csv("data/AI_Human.csv")  # Ensure correct loading
 
     # Debug: Print column names
     print("Columns in the dataframe:", df.columns)
@@ -58,7 +58,6 @@ if __name__ == "__main__":
                 human_metadata_sum[key] = human_metadata_sum.get(key, 0) + value
 
         iter += 1
-        print(iter)
 
     # Calculate averages
     ai_metadata_avg = {key: value / ai_count for key, value in ai_metadata_sum.items()}

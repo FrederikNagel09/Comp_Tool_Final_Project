@@ -10,13 +10,6 @@ from utility.file_utils import get_csv_dataframe  # noqa: E402
 def check_unique_text(csv_path: str, text_column: str = "text") -> str:
     """
     Checks if all elements in the text column of a CSV are unique.
-
-    Args:
-        csv_path (str): Path to the CSV file.
-        text_column (str): Name of the text column to check.
-
-    Returns:
-        str: Message about uniqueness of the text column.
     """
     df = get_csv_dataframe(csv_path)
     total_count = df.height
@@ -30,5 +23,5 @@ def check_unique_text(csv_path: str, text_column: str = "text") -> str:
 
 # Example usage:
 if __name__ == "__main__":
-    result = check_unique_text("merged_dataset_with_metadata.csv")
+    result = check_unique_text("data/Merged_dataset.csv")
     print(result)

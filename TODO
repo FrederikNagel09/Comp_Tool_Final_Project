@@ -8,12 +8,11 @@
 - ( ?????? Lav DL embedding metode ????? ) 
 
 - (Frederik) Check data samples are unique
-
 - (Frederik) Prep data. 
+- (Frederik) Implementer ny clustering method. 
+
 
 - (Marius) Implementer course clustering method + Davies-Bouldin index
-
-- (Frederik) Implementer ny clustering method. 
 
 - (Rasmus)  Rasmus snakker med TA
 
