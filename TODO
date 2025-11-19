@@ -17,6 +17,51 @@
 
 - (Rasmus)  Rasmus snakker med TA
 
+
+
+Data processing: 
+- Remove duplicates 
+- Filter out too big samples...
+- add ID column 
+- Split samples into chunks
+- calculate metadata 
+- Do embeddings for all samples. 
+- Combine into one big embedding vector.
+- Normalization
+
+______________
+Dataloader: 
+- reads dataframe
+- creates loads the entire thing and does batches. 
 - 
+
+________________
+- Do LSH and get accuracy
+
+- Do clustering and find accuracy
+
+- Do NN and get accuracy
+
+___________________
+Validation: 
+- ...
+
+
+
+
+
+80 / 10 / 10
+
+
+- Clustering:
+- LSH 
+
+- Bert
+- NN 
+
+
+
+
+
 
 

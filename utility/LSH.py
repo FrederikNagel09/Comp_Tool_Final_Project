@@ -1,9 +1,21 @@
-import numpy as np
-from collections import defaultdict
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 import pickle
+from collections import defaultdict
+
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+# add root path to dir
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(ROOT))
+print(ROOT)
+
+from utility.utils import preprocess_data
+
 
 class LSH_AI_Detector:
     def __init__(self, num_hash_tables=10, num_hash_bits=16):
@@ -93,13 +105,13 @@ class LSH_AI_Detector:
 
         votes = self.y[neighbors]
         return np.mean(votes)
-    
-    def save_hash_tables(self, path = "data/hash_tables.pkl"):
+
+    def save_hash_tables(self, path="data/hash_tables.pkl"):
         "Saves the hash tables to be loaded later"
         with open(path, "wb") as f:
             pickle.dump(self.hash_tables, f)
 
-    def load_hash_tables(self, path = "data/hash_tables.pkl"):
+    def load_hash_tables(self, path="data/hash_tables.pkl"):
         "Load already made hash tables"
         with open(path, "rb") as f:
             self.hash_tables = pickle.load(f)
@@ -107,12 +119,15 @@ class LSH_AI_Detector:
 
 if __name__ == "__main__":
     # Example usage:
+
+    preprocess_data("data/AI_Human.csv")
+
     data = np.load("data/A.npy")
 
     # Normalise data and split into X and y
     scaler = StandardScaler()
-    X = scaler.fit_transform(data[:,:-1])
-    y = data[:,-1]
+    X = scaler.fit_transform(data[:, :-1])
+    y = data[:, -1]
 
     # split into train and test data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
@@ -129,11 +144,11 @@ if __name__ == "__main__":
         pred = detector.predict(X_test[i])
         if pred == y_test[i]:
             sum += 1
-            
+
         print(f"\r{i}/{len(y_test)}", end="", flush=True)
 
     print("")
-    print(f"Accuracy: {sum/len(y_test)}")
+    print(f"Accuracy: {sum / len(y_test)}")
 
-    #save hash_table
+    # save hash_table
     detector.save_hash_tables("data/hash_tables.pkl")
