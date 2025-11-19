@@ -53,11 +53,7 @@ def merge_datasets():
         ["text_content", "label"] + metadata_cols
     ).rename({"text_content": "text", "label": "generated"})
 
-    # Compute metadata for datasets that don't have it
-    df_ai_human = add_metadata(df_ai_human)
-    df_ai_generated = add_metadata(df_ai_generated)
-    df_balanced = add_metadata(df_balanced)
-
+    
     # Merge all datasets
     merged_df = pl.concat(
         [df_ai_human, df_ai_generated, df_balanced, df_ai_human_content], how="vertical"

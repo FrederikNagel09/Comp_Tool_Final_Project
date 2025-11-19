@@ -3,6 +3,7 @@ from file_utils import get_csv_dataframe
 from meta_data_utils import calculate_metadata
 
 
+
 def embed_text(text: str, label: int):
     """convert a text into a vector with the last dimension being the label"""
     meta_data = calculate_metadata(text)
