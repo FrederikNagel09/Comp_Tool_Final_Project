@@ -64,10 +64,9 @@ def merge_datasets():
     
 
 if __name__ == "__main__":
-    
-    merged_df = merge_datasets()
 
-    # Save to CSV in current directory
-    merged_df.write_csv("merged_dataset_with_metadata.csv")
 
-    print(f"Merged dataset shape: {merged_df.shape}")
+    #df = pl.read_parquet("data/full_dataset_embeddings.parquet")
+    df = pl.read_csv("data/full_dataset.csv")
+
+    print(f"Merged dataset shape: {df.columns}")

@@ -81,16 +81,12 @@ def add_unique_id(df: pl.DataFrame, column_name: str = "id") -> pl.DataFrame:
 def chunk_by_tokens(df: pl.DataFrame, token_limit: int = 500) -> pl.DataFrame:
     """
     Split each text_content into chunks of <= token_limit tokens, by lines.
-    Each chunk gets roughly equal number of lines. Chunks from the same original row
-    keep the same id.
+    Preserves ALL original columns.
     """
     rows = []
 
     for row in tqdm(df.iter_rows(named=True), total=df.height):
-        text = row["text"]
-        sample_id = row["id"]
-
-        lines = text.split("\n")
+        lines = row["text"].split("\n")
         if not lines:
             continue
 
@@ -103,18 +99,19 @@ def chunk_by_tokens(df: pl.DataFrame, token_limit: int = 500) -> pl.DataFrame:
 
         # Determine lines per chunk
         total_lines = len(lines)
-        base_lines_per_chunk = total_lines // n_chunks
+        base = total_lines // n_chunks
         remainder = total_lines % n_chunks
 
         start = 0
         for i in range(n_chunks):
-            end = start + base_lines_per_chunk + (1 if i < remainder else 0)
+            end = start + base + (1 if i < remainder else 0)
             chunk_lines = lines[start:end]
+
             if chunk_lines:
-                rows.append({
-                    "id": sample_id,
-                    "text": "\n".join(chunk_lines)
-                })
+                new_row = dict(row)        # copy all original columns
+                new_row["text"] = "\n".join(chunk_lines)  # replace only text
+                rows.append(new_row)
+
             start = end
 
     return pl.DataFrame(rows)
@@ -147,7 +144,7 @@ def merge_datasets():
     # Merge all datasets
     merged_df = pl.concat(
         [df_ai_human, df_ai_generated, df_balanced, df_ai_human_content], how="vertical"
-    )
+    )   #df_ai_human
 
     return merged_df
 
@@ -162,14 +159,22 @@ def extend_with_metadata(df: pl.DataFrame) -> pl.DataFrame:
     Returns:
         pl.DataFrame: Original DataFrame extended with metadata columns.
     """
+    print("Columns before adding metadata: ")
+    print(df.columns)
     # Compute metadata for each row
     metadata_dicts = [calculate_metadata(text) for text in tqdm(df["text"].to_list(), desc="Calculating metadata")]
 
     # Convert list of dicts to Polars DataFrame
     metadata_df = pl.DataFrame(metadata_dicts)
+    metadata_df = metadata_df.drop(["generated"], strict=False)
+    print("Metadata columns to add: ")
+    print(metadata_df.columns)
 
     # Horizontally stack metadata with original DataFrame
-    return df.hstack(metadata_df)
+    df = df.hstack(metadata_df)
+    print("Columns after adding metadata: ")
+    print(df.columns)
+    return df
 
 
 def add_embeddings(df: pl.DataFrame) -> pl.DataFrame:
@@ -195,27 +200,24 @@ if __name__ == "__main__":
 
     """
     df = merge_datasets()
-
     # Remove outliers based on text length
     df = filter_word_count(df, min_words=100, max_words=1000)
-    
     # Remove duplicate texts
     df = drop_duplicate_text(df)
-    
     # Add unique ID
     df = add_unique_id(df, column_name="id")
-    
     # Chunk by tokens and extend dataset
-    chunked_df = chunk_by_tokens(df, token_limit=250)
-
-    df = extend_with_metadata(chunked_df)
-
+    df = chunk_by_tokens(df, token_limit=250)
+    
+    df = extend_with_metadata(df)
+    
     # Save to CSV in current directory
     df.write_csv("full_dataset.csv")
 
-    print(" number of columns, after merging and processing: ", df.width)
+    print(" number of columns, after merging and processing6: ", df.columns)
     print(f"Final dataset size after cleaning: {df.height} samples.")
     """
+
 
     df = get_csv_dataframe("full_dataset.csv")
     embedding_df = add_embeddings(df)
