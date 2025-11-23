@@ -155,8 +155,6 @@ def extend_with_metadata(df: pl.DataFrame) -> pl.DataFrame:
     Returns:
         pl.DataFrame: Original DataFrame extended with metadata columns.
     """
-    print("Columns before adding metadata: ")
-    print(df.columns)
     # Compute metadata for each row
     metadata_dicts = [
         calculate_metadata(text) for text in tqdm(df["text"].to_list(), desc="Calculating metadata")
@@ -165,13 +163,9 @@ def extend_with_metadata(df: pl.DataFrame) -> pl.DataFrame:
     # Convert list of dicts to Polars DataFrame
     metadata_df = pl.DataFrame(metadata_dicts)
     metadata_df = metadata_df.drop(["generated"], strict=False)
-    print("Metadata columns to add: ")
-    print(metadata_df.columns)
 
     # Horizontally stack metadata with original DataFrame
     df = df.hstack(metadata_df)
-    print("Columns after adding metadata: ")
-    print(df.columns)
     return df
 
 
