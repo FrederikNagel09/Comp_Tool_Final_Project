@@ -1,8 +1,9 @@
 import sys
 from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
 
 # set root path one step back
@@ -15,7 +16,7 @@ from utility.file_utils import get_csv_dataframe  # noqa: E402
 df = get_csv_dataframe("data/Merged_dataset.csv")
 
 # Compute text lengths
-text_lengths = [len(text.split()) for text in df['text']]
+text_lengths = [len(text.split()) for text in df["text"]]
 
 # ----------------------
 # Statistics
@@ -42,11 +43,11 @@ sns.set(style="whitegrid")
 min_len = 100
 max_len = 1000
 
-plt.figure(figsize=(10,6))
-sns.histplot(text_lengths, bins=50, kde=True, color='skyblue')
+plt.figure(figsize=(10, 6))
+sns.histplot(text_lengths, bins=50, kde=True, color="skyblue")
 
-plt.axvline(min_len, color='black', linestyle='--')
-plt.axvline(max_len, color='black', linestyle='--')
+plt.axvline(min_len, color="black", linestyle="--")
+plt.axvline(max_len, color="black", linestyle="--")
 
 plt.title("Histogram of Text Lengths")
 plt.xlabel("Text Length")

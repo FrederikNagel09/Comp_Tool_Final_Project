@@ -14,7 +14,9 @@ from utility.meta_data_utils import calculate_metadata  # noqa: E402
 
 def add_metadata(df: pl.DataFrame) -> pl.DataFrame:
     """Compute metadata for all rows in a dataframe with a progress bar."""
-    metadata_dicts = [calculate_metadata(text) for text in tqdm(df["text"].to_list(), desc="Calculating metadata")]
+    metadata_dicts = [
+        calculate_metadata(text) for text in tqdm(df["text"].to_list(), desc="Calculating metadata")
+    ]
     metadata_df = pl.DataFrame(metadata_dicts)
     return df.hstack(metadata_df)
 
@@ -53,7 +55,6 @@ def merge_datasets():
         ["text_content", "label"] + metadata_cols
     ).rename({"text_content": "text", "label": "generated"})
 
-    
     # Merge all datasets
     merged_df = pl.concat(
         [df_ai_human, df_ai_generated, df_balanced, df_ai_human_content], how="vertical"
@@ -61,12 +62,9 @@ def merge_datasets():
 
     return merged_df
 
-    
 
 if __name__ == "__main__":
-
-
-    #df = pl.read_parquet("data/full_dataset_embeddings.parquet")
+    # df = pl.read_parquet("data/full_dataset_embeddings.parquet")
     df = pl.read_csv("data/full_dataset.csv")
 
     print(f"Merged dataset shape: {df.columns}")

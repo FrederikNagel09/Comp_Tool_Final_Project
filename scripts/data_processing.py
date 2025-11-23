@@ -8,12 +8,14 @@ from tqdm import tqdm
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT_DIR))
 
+from sentence_transformers import SentenceTransformer  # noqa: E402
+
 from utility.file_utils import get_csv_dataframe  # noqa: E402
 from utility.meta_data_utils import calculate_metadata  # noqa: E402
-from sentence_transformers import SentenceTransformer
-from utility.file_utils import get_csv_dataframe  # noqa: E402
+
 # Load a pretrained embedding model
 model = SentenceTransformer("all-MiniLM-L6-v2")
+
 
 def get_embedding(text: str) -> list[float]:
     """
@@ -28,9 +30,7 @@ def count_length_outliers(df: pl.DataFrame, min_len: int = 100, max_len: int = 5
     Count rows where text_content length is < min_len or > max_len.
     Returns counts and percentages.
     """
-    df = df.with_columns(
-        pl.col("text").str.len_bytes().alias("len")
-    )
+    df = df.with_columns(pl.col("text").str.len_bytes().alias("len"))
 
     total = df.height
     too_short = df.filter(pl.col("len") < min_len).height
@@ -41,8 +41,9 @@ def count_length_outliers(df: pl.DataFrame, min_len: int = 100, max_len: int = 5
         "too_short": too_short,
         "too_long": too_long,
         "removed": removed,
-        "pct_removed": removed / total * 100
+        "pct_removed": removed / total * 100,
     }
+
 
 def filter_word_count(df: pl.DataFrame, min_words: int, max_words: int) -> pl.DataFrame:
     """
@@ -51,13 +52,10 @@ def filter_word_count(df: pl.DataFrame, min_words: int, max_words: int) -> pl.Da
     """
     # Collect rows as list of dictionaries
     rows = df.to_dicts()
-    
+
     # Keep only rows within the word count limits
-    filtered_rows = [
-        row for row in rows
-        if min_words <= len(row["text"].split()) <= max_words
-    ]
-    
+    filtered_rows = [row for row in rows if min_words <= len(row["text"].split()) <= max_words]
+
     # Convert back to a Polars DataFrame
     return pl.DataFrame(filtered_rows)
 
@@ -74,9 +72,8 @@ def add_unique_id(df: pl.DataFrame, column_name: str = "id") -> pl.DataFrame:
     """
     Add a unique ID column starting at 0.
     """
-    return df.with_columns(
-        pl.arange(0, df.height).alias(column_name)
-    )
+    return df.with_columns(pl.arange(0, df.height).alias(column_name))
+
 
 def chunk_by_tokens(df: pl.DataFrame, token_limit: int = 500) -> pl.DataFrame:
     """
@@ -108,7 +105,7 @@ def chunk_by_tokens(df: pl.DataFrame, token_limit: int = 500) -> pl.DataFrame:
             chunk_lines = lines[start:end]
 
             if chunk_lines:
-                new_row = dict(row)        # copy all original columns
+                new_row = dict(row)  # copy all original columns
                 new_row["text"] = "\n".join(chunk_lines)  # replace only text
                 rows.append(new_row)
 
@@ -136,16 +133,14 @@ def merge_datasets():
 
     df_ai_human_content = df_ai_human_content.with_columns([pl.col("label").cast(pl.Int8)])
 
-    
-    df_ai_human_content = df_ai_human_content.select(
-        ["text_content", "label"]
-    ).rename({"text_content": "text", "label": "generated"})
+    df_ai_human_content = df_ai_human_content.select(["text_content", "label"]).rename(
+        {"text_content": "text", "label": "generated"}
+    )
 
-    
     # Merge all datasets
     merged_df = pl.concat(
         [df_ai_human, df_ai_generated, df_balanced, df_ai_human_content], how="vertical"
-    )   #df_ai_human
+    )  # df_ai_human
 
     return merged_df
 
@@ -163,7 +158,9 @@ def extend_with_metadata(df: pl.DataFrame) -> pl.DataFrame:
     print("Columns before adding metadata: ")
     print(df.columns)
     # Compute metadata for each row
-    metadata_dicts = [calculate_metadata(text) for text in tqdm(df["text"].to_list(), desc="Calculating metadata")]
+    metadata_dicts = [
+        calculate_metadata(text) for text in tqdm(df["text"].to_list(), desc="Calculating metadata")
+    ]
 
     # Convert list of dicts to Polars DataFrame
     metadata_df = pl.DataFrame(metadata_dicts)
@@ -189,10 +186,7 @@ def add_embeddings(df: pl.DataFrame, batch_size: int = 64) -> pl.DataFrame:
     for i in tqdm(range(0, len(texts), batch_size), desc="Embedding"):
         batch = texts[i : i + batch_size]
         batch_emb = model.encode(
-            batch,
-            batch_size=batch_size,
-            show_progress_bar=False,
-            convert_to_numpy=True
+            batch, batch_size=batch_size, show_progress_bar=False, convert_to_numpy=True
         )
         embeddings.extend(batch_emb.tolist())
 
@@ -202,8 +196,6 @@ def add_embeddings(df: pl.DataFrame, batch_size: int = 64) -> pl.DataFrame:
 
 
 if __name__ == "__main__":
-
-    """
     df = merge_datasets()
     # Remove outliers based on text length
     df = filter_word_count(df, min_words=100, max_words=1000)
@@ -213,21 +205,10 @@ if __name__ == "__main__":
     df = add_unique_id(df, column_name="id")
     # Chunk by tokens and extend dataset
     df = chunk_by_tokens(df, token_limit=250)
-    
+
+    # Calculate and add metadata
     df = extend_with_metadata(df)
-    
-    # Save to CSV in current directory
-    df.write_csv("full_dataset.csv")
+    df = add_embeddings(df)
 
-    print(" number of columns, after merging and processing6: ", df.columns)
-    print(f"Final dataset size after cleaning: {df.height} samples.")
-    """
-    
-    df = get_csv_dataframe("data/full_dataset.csv")
-    embedding_df = add_embeddings(df)
-
-    embedding_df.write_parquet("data/full_dataset_embeddings.parquet")
-    print(f"Embeddings dataset shape: {embedding_df.shape}")
-
-    print(embedding_df)
-    
+    # Save updated DataFrame to Parquet
+    df.to_parquet("your_updated.parquet", index=False)

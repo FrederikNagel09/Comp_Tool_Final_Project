@@ -1,14 +1,14 @@
 import pickle
+
+# add root path to dir
+import sys
 from collections import defaultdict
+from pathlib import Path
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
-# add root path to dir
-import sys
-from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT))

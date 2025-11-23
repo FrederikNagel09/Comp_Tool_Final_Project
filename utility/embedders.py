@@ -1,6 +1,6 @@
-from sentence_transformers import SentenceTransformer
 import numpy as np
 from meta_data_utils import meta_data_vectorrize
+from sentence_transformers import SentenceTransformer
 
 # lav din model
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")

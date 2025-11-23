@@ -1,11 +1,13 @@
-import polars as pl
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import polars as pl
 
 # Set root path one step back
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT_DIR))
 from utility.file_utils import get_csv_dataframe  # noqa: E402
+
 
 def check_unique_text(csv_path: str, text_column: str = "text") -> str:
     """
@@ -20,6 +22,7 @@ def check_unique_text(csv_path: str, text_column: str = "text") -> str:
     else:
         non_unique = total_count - unique_count
         return f"{non_unique} items are NOT unique out of {total_count} total"
+
 
 # Example usage:
 if __name__ == "__main__":

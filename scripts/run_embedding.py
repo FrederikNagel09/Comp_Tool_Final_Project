@@ -1,14 +1,15 @@
 import sys
 from pathlib import Path
-import time
+
 # set root path one step back
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT_DIR))
 
 from sentence_transformers import SentenceTransformer
-from utility.file_utils import get_csv_dataframe  # noqa: E402
+
 # Load a pretrained embedding model (no API required)
 model = SentenceTransformer("all-MiniLM-L6-v2")
+
 
 def get_embedding(text: str) -> list[float]:
     """

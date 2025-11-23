@@ -1,10 +1,9 @@
 import numpy as np
-from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import NearestNeighbors
-
-from sklearn.metrics import confusion_matrix
 from scipy.optimize import linear_sum_assignment
+from sklearn.cluster import DBSCAN
+from sklearn.metrics import confusion_matrix
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import StandardScaler
 
 
 ###############################
