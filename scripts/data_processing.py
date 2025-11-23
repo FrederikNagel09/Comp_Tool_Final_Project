@@ -12,7 +12,7 @@ from utility.file_utils import get_csv_dataframe  # noqa: E402
 from utility.meta_data_utils import calculate_metadata  # noqa: E402
 from sentence_transformers import SentenceTransformer
 from utility.file_utils import get_csv_dataframe  # noqa: E402
-# Load a pretrained embedding model (no API required)
+# Load a pretrained embedding model
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 def get_embedding(text: str) -> list[float]:
@@ -119,6 +119,7 @@ def chunk_by_tokens(df: pl.DataFrame, token_limit: int = 500) -> pl.DataFrame:
 
     return pl.DataFrame(rows)
 
+
 def merge_datasets():
     # Load datasets
     df_ai_human = get_csv_dataframe("data/AI_Human.csv")
@@ -172,23 +173,27 @@ def extend_with_metadata(df: pl.DataFrame) -> pl.DataFrame:
     return df.hstack(metadata_df)
 
 
-def add_embeddings(df: pl.DataFrame) -> pl.DataFrame:
+def add_embeddings(df: pl.DataFrame, batch_size: int = 64) -> pl.DataFrame:
     """
-    Replace 'text' column in a Polars DataFrame with embeddings.
-
-    Args:
-        df (pl.DataFrame): Input DataFrame with a 'text' column.
-
-    Returns:
-        pl.DataFrame: DataFrame with an 'embedding' column instead of 'text'.
+    Compute embeddings in batches and add them to the DataFrame.
+    Removes the 'text' column.
     """
-    # Compute embeddings for each text
-    embeddings = [get_embedding(text) for text in tqdm(df["text"].to_list(), desc="Generating embeddings")]
+    texts: List[str] = df["text"].to_list()
+    embeddings: List[list[float]] = []
 
-    # Create a new DataFrame with the embeddings
-    embedding_df = pl.DataFrame({"embedding": embeddings})
+    for i in tqdm(range(0, len(texts), batch_size), desc="Embedding"):
+        batch = texts[i : i + batch_size]
+        batch_emb = model.encode(
+            batch,
+            batch_size=batch_size,
+            show_progress_bar=False,
+            convert_to_numpy=True
+        )
+        embeddings.extend(batch_emb.tolist())
 
-    return embedding_df
+    df = df.with_columns(pl.Series("embedding", embeddings))
+    df = df.drop("text")
+    return df
 
 
 if __name__ == "__main__":
@@ -217,12 +222,12 @@ if __name__ == "__main__":
     print(f"Final dataset size after cleaning: {df.height} samples.")
     """
 
-    df = get_csv_dataframe("full_dataset.csv")
+    df = get_csv_dataframe("data/full_dataset.csv")
     embedding_df = add_embeddings(df)
 
-    # Save embeddings to CSV
-    embedding_df.write_csv("full_dataset_embeddings.csv")
-
+    embedding_df.write_parquet("data/full_dataset_embeddings.parquet")
     print(f"Embeddings dataset shape: {embedding_df.shape}")
+
+    print(embedding_df)
 
     
