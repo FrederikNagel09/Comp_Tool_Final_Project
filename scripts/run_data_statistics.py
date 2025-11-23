@@ -1,9 +1,13 @@
+"""
+
+Run with:
+    python scripts/run_data_statistics.py
+"""
+
 import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import seaborn as sns
 
 # set root path one step back
@@ -19,37 +23,35 @@ df = get_csv_dataframe("data/Merged_dataset.csv")
 text_lengths = [len(text.split()) for text in df["text"]]
 
 # ----------------------
-# Statistics
-# ----------------------
-lengths_array = np.array(text_lengths)
-print("Basic Statistics:")
-print(f"Count: {len(lengths_array)}")
-print(f"Mean: {lengths_array.mean():.2f}")
-print(f"Median: {np.median(lengths_array):.2f}")
-print(f"Min: {lengths_array.min()}")
-print(f"Max: {lengths_array.max()}")
-print(f"Standard Deviation: {lengths_array.std():.2f}")
-print(f"25th Percentile: {np.percentile(lengths_array, 25)}")
-print(f"75th Percentile: {np.percentile(lengths_array, 75)}")
-print(f"Skewness: {pd.Series(lengths_array).skew():.2f}")
-print(f"Kurtosis: {pd.Series(lengths_array).kurtosis():.2f}")
-
-# ----------------------
 # Visualizations
 # ----------------------
-sns.set(style="whitegrid")
+title_text = "Histogram of Text Lengths"
+x_axis_label = "Text Length"
+y_axis_label = "Frequency"
+number_of_bins = 50
+histogram_color = "skyblue"
+linestyle = "--"
+line_color = "black"
 
-# Histogram
+graph_name = "text_length_histogram"
+
+# Minumum and Maximum text lengths we cut off
 min_len = 100
 max_len = 1000
 
+# Initialize plot
+sns.set(style="whitegrid")
 plt.figure(figsize=(10, 6))
-sns.histplot(text_lengths, bins=50, kde=True, color="skyblue")
 
-plt.axvline(min_len, color="black", linestyle="--")
-plt.axvline(max_len, color="black", linestyle="--")
+# Plot histogram
+sns.histplot(text_lengths, bins=number_of_bins, kde=True, color=histogram_color)
 
-plt.title("Histogram of Text Lengths")
-plt.xlabel("Text Length")
-plt.ylabel("Frequency")
-plt.show()
+# Add vertical lines for min and max lengths
+plt.axvline(min_len, color=line_color, linestyle=linestyle)
+plt.axvline(max_len, color=line_color, linestyle=linestyle)
+
+plt.title(title_text)
+plt.xlabel(x_axis_label)
+plt.ylabel(y_axis_label)
+
+plt.savefig(f"graphs/{graph_name}.png")
