@@ -1,6 +1,6 @@
 """
 This script takes our 4 datasets and combines them into one big dataset.
-It then cleans the data by removing very large and very small text samples. 
+It then cleans the data by removing very large and very small text samples.
 (100 words < text < 1000 words)
 
 Data cleanup is performed, by removing duplicates and adding a unique ID to each text sample.
@@ -20,6 +20,11 @@ Requires these files in the data/ folder:
     data/balanced_ai_human_prompts.csv
 """
 
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from utility.data_processing_utils import (
     add_embeddings,
     add_unique_id,
@@ -33,8 +38,10 @@ from utility.data_processing_utils import (
 
 def run_data_processing():
     df = merge_datasets()
+    df_sample = df.head(100)
     # Remove outliers based on text length
-    df = filter_word_count(df, min_words=100, max_words=1000)
+    df = filter_word_count(df_sample, min_words=100, max_words=1000)
+
     # Remove duplicate texts
     df = drop_duplicate_text(df)
     # Add unique ID
@@ -44,13 +51,12 @@ def run_data_processing():
 
     # Calculate and add metadata
     df = extend_with_metadata(df)
+
     df = add_embeddings(df)
 
     # Save updated DataFrame to Parquet
-    df.to_parquet("your_updated.parquet", index=False)
-
+    df.write_parquet("data/data_sample.parquet")
 
 
 if __name__ == "__main__":
-
     run_data_processing()

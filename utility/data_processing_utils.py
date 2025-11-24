@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 from tqdm import tqdm
 
@@ -75,43 +76,62 @@ def add_unique_id(df: pl.DataFrame, column_name: str = "id") -> pl.DataFrame:
     return df.with_columns(pl.arange(0, df.height).alias(column_name))
 
 
-def chunk_by_tokens(df: pl.DataFrame, token_limit: int = 500) -> pl.DataFrame:
+# Chunk by tokens and extend dataset
+def chunk_by_tokens(
+    df: pl.DataFrame, token_limit: int = 250, min_tokens: int = 100
+) -> pl.DataFrame:
     """
-    Split each text_content into chunks of <= token_limit tokens, by lines.
+    Split each text_content into chunks of <= token_limit tokens (words).
+    Creates roughly equal-sized chunks, each between min_tokens and token_limit.
     Preserves ALL original columns.
     """
     rows = []
-
     for row in tqdm(df.iter_rows(named=True), total=df.height):
-        lines = row["text"].split("\n")
-        if not lines:
+        text = row["text"]
+        if not text or not text.strip():
             continue
 
-        # Count total tokens
-        line_tokens = [len(line.split()) for line in lines]
-        total_tokens = sum(line_tokens)
+        # Split into words
+        words = text.split()
+        total_words = len(words)
+
+        if total_words == 0:
+            continue
 
         # Calculate number of chunks needed
-        n_chunks = max(1, (total_tokens + token_limit - 1) // token_limit)
+        n_chunks = max(1, (total_words + token_limit - 1) // token_limit)
 
-        # Determine lines per chunk
-        total_lines = len(lines)
-        base = total_lines // n_chunks
-        remainder = total_lines % n_chunks
+        # Calculate words per chunk for equal distribution
+        base_words_per_chunk = total_words // n_chunks
+        remainder = total_words % n_chunks
 
+        # Create chunks
         start = 0
         for i in range(n_chunks):
-            end = start + base + (1 if i < remainder else 0)
-            chunk_lines = lines[start:end]
+            # Distribute remainder words across first chunks
+            chunk_size = base_words_per_chunk + (1 if i < remainder else 0)
+            end = start + chunk_size
 
-            if chunk_lines:
-                new_row = dict(row)  # copy all original columns
-                new_row["text"] = "\n".join(chunk_lines)  # replace only text
+            chunk_words = words[start:end]
+
+            # Only add chunk if it meets minimum requirement (or if it's the only chunk)
+            if len(chunk_words) >= min_tokens or n_chunks == 1:
+                new_row = dict(row)
+                new_row["text"] = " ".join(chunk_words)
                 rows.append(new_row)
 
             start = end
 
-    return pl.DataFrame(rows)
+    df = pl.DataFrame(rows)
+
+    df = df.with_columns(
+        [
+            pl.col("generated").cast(pl.Boolean),  # save memory for binary
+            pl.col("id").cast(pl.UInt32),  # smaller integer type
+        ]
+    )
+
+    return df
 
 
 def merge_datasets():
@@ -166,6 +186,19 @@ def extend_with_metadata(df: pl.DataFrame) -> pl.DataFrame:
 
     # Horizontally stack metadata with original DataFrame
     df = df.hstack(metadata_df)
+
+    df = df.with_columns(
+        [
+            pl.col("word_count").cast(pl.UInt16),  # save memory for binary
+            pl.col("character_count").cast(pl.UInt16),  # smaller integer type
+            pl.col("lexical_diversity").cast(pl.Float32),  # smaller integer type
+            pl.col("avg_sentence_length").cast(pl.Float32),  # smaller integer type
+            pl.col("avg_word_length").cast(pl.Float32),  # smaller integer type
+            pl.col("flesch_reading_ease").cast(pl.Float32),  # smaller integer type
+            pl.col("gunning_fog_index").cast(pl.Float32),  # smaller integer type
+            pl.col("punctuation_ratio").cast(pl.Float32),
+        ]
+    )
     return df
 
 
@@ -182,7 +215,8 @@ def add_embeddings(df: pl.DataFrame, batch_size: int = 64) -> pl.DataFrame:
         batch_emb = model.encode(
             batch, batch_size=batch_size, show_progress_bar=False, convert_to_numpy=True
         )
-        embeddings.extend(batch_emb.tolist())
+        # Convert batch embeddings to float32 before adding to list
+        embeddings.extend(batch_emb.astype(np.float32).tolist())
 
     df = df.with_columns(pl.Series("embedding", embeddings))
     df = df.drop("text")
