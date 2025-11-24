@@ -38,9 +38,8 @@ from utility.data_processing_utils import (
 
 def run_data_processing():
     df = merge_datasets()
-    df_sample = df.head(100)
     # Remove outliers based on text length
-    df = filter_word_count(df_sample, min_words=100, max_words=1000)
+    df = filter_word_count(df, min_words=100, max_words=1000)
 
     # Remove duplicate texts
     df = drop_duplicate_text(df)
@@ -55,7 +54,7 @@ def run_data_processing():
     df = add_embeddings(df)
 
     # Save updated DataFrame to Parquet
-    df.write_parquet("data/data_sample.parquet")
+    df.write_parquet("data/data.parquet")
 
 
 if __name__ == "__main__":

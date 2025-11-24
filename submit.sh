@@ -1,7 +1,7 @@
 #!/bin/bash
 #BSUB -J job_name                     
-#BSUB -q gpuv100                       # Queue to submit the job to
-#BSUB -W 60                              # Wall time limit (60 minutes)
+#BSUB -q gpuv100                      # Queue to submit the job to
+#BSUB -W 100                              # Wall time limit (100 minutes)
 #BSUB -n 8                                 # Request 8 cores
 #BSUB -R "rusage[mem=4GB]"                 # 
 #BSUB -R "span[hosts=1]"                   # Request all cores on the same host
@@ -19,4 +19,4 @@ export BLIS_NUM_THREADS=8
 source ~/Comp_Tool_Final_Project/.venv/bin/activate
 
 # Run the Python script
-python ~/Comp_Tool_Final_Project/scripts/data_processing.py
+python ~/Comp_Tool_Final_Project/scripts/run_data_processing.py
