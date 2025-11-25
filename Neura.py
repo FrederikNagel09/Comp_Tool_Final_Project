@@ -4,45 +4,50 @@ import os
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
+from dataloader.dataloader import LoadDataset
+import polars as pl
+from sklearn.model_selection import train_test_split
+from tqdm import tqdm
+
+print("Loading data...")
+df = pl.read_parquet("data/data.parquet").to_pandas()
+# First split → train + temp
+train_df, temp_df = train_test_split(df, test_size=0.2, random_state=42)
+
+# Second split temp → val + test
+val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
+
+# Convert back to Polars DataFrames
+train_df = pl.from_pandas(train_df)
+val_df = pl.from_pandas(val_df)
+test_df = pl.from_pandas(test_df)
+print("Data loaded, and split into train, val, test.")
 
 
+train_dataset = LoadDataset(train_df)
+val_dataset = LoadDataset(val_df)
+test_dataset = LoadDataset(test_df)
 
-def generate_and_split(
-    n_vectors=10,
-    seed=42,
-    test_size=0.2
-):
-    """
-    Generates synthetic vectors and splits into train/validation sets.
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-    - First 256 dims: simulated BERT embeddings
-    - First 8 dims: simulated metadata features
-    - Output vector shape: (264,)
-    """
+print("DataLoaders created.")
 
-    rng = np.random.default_rng(seed)
 
-    # BERT part
-    bert_part = rng.uniform(-1, 1, size=(n_vectors, 256))
+def accuracy(loader):
+    model.eval()
+    correct = 0
+    total = 0
 
-    # Metadata part
-    meta_part = rng.uniform(-1, 1, size=(n_vectors, 8))
+    with torch.no_grad():
+        for X, y, ID in loader:
+            y = y.unsqueeze(1)
+            preds = (model(X) > 0.5).float()
+            correct += (preds == y).sum().item()
+            total += y.size(0)
 
-    # Combined features
-    X = np.hstack([meta_part, bert_part])
-
-    # Example synthetic labels (binary)
-    y = rng.integers(0, 2, size=n_vectors)
-
-    # Split
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=test_size, random_state=seed
-    )
-
-    return X_train, X_val, y_train, y_val
-
-X_train, X_val, y_train, y_val = generate_and_split(n_vectors=10)
-
+    return correct / total
 
 
 class NeuralNetwork(nn.Module):
@@ -50,74 +55,54 @@ class NeuralNetwork(nn.Module):
         super().__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(256+8, 128),
+            nn.Linear(392, 128),
             nn.ReLU(),
             nn.Linear(128, 64),
             nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU(),
             nn.Linear(32, 1),
-            nn.Sigmoid() 
+            nn.Sigmoid(),
         )
+
     def forward(self, x):
         x = self.flatten(x)
         logits = self.linear_relu_stack(x)
         return logits
-    
+
+
+print("Starting training...")
 model = NeuralNetwork()
-print(model)
-
-model = NeuralNetwork()
-
-
-# Convert data to PyTorch tensors
-X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
-y_train_tensor = torch.tensor(y_train, dtype=torch.long).float().unsqueeze(1)
-X_val_tensor = torch.tensor(X_val, dtype=torch.float32)
-y_val_tensor = torch.tensor(y_val, dtype=torch.long).float().unsqueeze(1)
-
-
-# Training setup
-loss_fn = nn.BCELoss() # the loss function to caculate error, used # binary_entropy_loss 
-optimizer = torch.optim.Adam(model.parameters()) # adam is a special optimzier
-
-# Training loop
+loss_fn = nn.BCELoss()
+optimizer = torch.optim.Adam(model.parameters())
 epochs = 10
+
 for epoch in range(epochs):
     model.train()
-    
-    # use the model, and count errors
-    logits = model(X_train_tensor)
-    loss = loss_fn(logits, y_train_tensor)
-    
-    # Backward pass
-    optimizer.zero_grad() # clear previous training loop's gradient 
-    loss.backward()
-    optimizer.step()
-    
-    # Check if parameters are still updating
-    if epoch > 0 and abs(loss.item() - prev_loss) < 1e-10:
-        print(f"Early stopping at epoch {epoch}: parameters not updating")
-        break
-    prev_loss = loss.item()
+    total_loss = 0
+
+    print(f"Epoch {epoch + 1}/{epochs}")
+
+    # tqdm INSIDE the epoch (batch loop)
+    for X, y, ID in tqdm(train_loader, desc="Training Batches", leave=False):
+        y = y.unsqueeze(1)
+
+        logits = model(X)
+        loss = loss_fn(logits, y)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+
+    # ----- ACCURACIES -----
+    train_acc = accuracy(train_loader)
+    val_acc = accuracy(val_loader)
+
+    print(
+        f"Epoch {epoch + 1}/{epochs} | Loss: {total_loss:.4f} | Train Acc: {train_acc:.4f} | Val Acc: {val_acc:.4f}"
+    )
 
 
-
-
-# Final predictions and evaluation
-model.eval()
-
-# Training accuracy
-train_logits = model(X_train_tensor)
-train_preds = (train_logits > 0.5).float()
-train_acc = (train_preds == y_train_tensor).float().mean()
-
-print(f"Training Accuracy: {train_acc:.4f}")
-
-# Validation accuracy
-val_logits = model(X_val_tensor)    
-val_preds = (val_logits > 0.5).float()
-val_acc = (val_preds == y_val_tensor).float().mean()
-
-
-print(f"Validation Accuracy: {val_acc:.4f}")
+test_acc = accuracy(test_loader)
+print(f"\nFinal Test Accuracy: {test_acc:.4f}")
