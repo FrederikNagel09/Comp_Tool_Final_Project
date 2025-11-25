@@ -8,15 +8,58 @@
 - ( ?????? Lav DL embedding metode ????? ) 
 
 - (Frederik) Check data samples are unique
-
 - (Frederik) Prep data. 
+- (Frederik) Implementer ny clustering method. 
+
 
 - (Marius) Implementer course clustering method + Davies-Bouldin index
 
-- (Frederik) Implementer ny clustering method. 
-
 - (Rasmus)  Rasmus snakker med TA
 
+
+
+Data processing: 
+- Remove duplicates - DONE
+- Filter out too big samples... - DONE
+- add ID column  - Done 
+- Split samples into chunks - DONE
+- calculate metadata - Done
+- Do embeddings for all samples.  - DONE 
+
+
+______________
+Dataloader: 
+- reads dataframe 
+- creates loads the entire thing and does batches. 
 - 
+
+________________
+- Do LSH and get accuracy
+
+- Do clustering and find accuracy
+
+- Do NN and get accuracy
+
+___________________
+Validation: 
+- ...
+
+
+
+
+
+80 / 10 / 10
+
+
+- Clustering:
+- LSH 
+
+- Bert
+- NN 
+
+
+
+
+
 
 
