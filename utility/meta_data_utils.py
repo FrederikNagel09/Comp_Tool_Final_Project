@@ -113,11 +113,6 @@ def meta_data_vectorrize(text: str) -> list[float]:
         get_lexical_diversity(text),
         get_avg_sentence_length(text),
         get_avg_word_length(text),
-<<<<<<< HEAD
-        
-=======
-        get_punctuation_ratio(text),
->>>>>>> 6c83d923ed8cfb8cf4606b8777b3dbd001ea6b62
         get_flesch_reading_ease(text),
         get_gunning_fog_index(text),
     ]

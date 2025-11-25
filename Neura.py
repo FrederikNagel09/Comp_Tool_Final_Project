@@ -9,100 +9,40 @@ import polars as pl
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
+from utility.neural_network_utils import get_train_test_val_dataloaders, run_training_and_testing, plot_confusion_matrix, plot_training_history
+from models.NeuralNetwork import NeuralNetwork
+
 print("Loading data...")
-df = pl.read_parquet("data/data.parquet").to_pandas()
-# First split → train + temp
-train_df, temp_df = train_test_split(df, test_size=0.2, random_state=42)
-
-# Second split temp → val + test
-val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
-
-# Convert back to Polars DataFrames
-train_df = pl.from_pandas(train_df)
-val_df = pl.from_pandas(val_df)
-test_df = pl.from_pandas(test_df)
+batch_size = 64
+train_loader, val_loader, test_loader = get_train_test_val_dataloaders(batch_size=batch_size)
 print("Data loaded, and split into train, val, test.")
 
 
-train_dataset = LoadDataset(train_df)
-val_dataset = LoadDataset(val_df)
-test_dataset = LoadDataset(test_df)
-
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
-
-print("DataLoaders created.")
-
-
-def accuracy(loader):
-    model.eval()
-    correct = 0
-    total = 0
-
-    with torch.no_grad():
-        for X, y, ID in loader:
-            y = y.unsqueeze(1)
-            preds = (model(X) > 0.5).float()
-            correct += (preds == y).sum().item()
-            total += y.size(0)
-
-    return correct / total
-
-
-class NeuralNetwork(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(392, 128),
-            nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, 1),
-            nn.Sigmoid(),
-        )
-
-    def forward(self, x):
-        x = self.flatten(x)
-        logits = self.linear_relu_stack(x)
-        return logits
-
-
 print("Starting training...")
+
 model = NeuralNetwork()
 loss_fn = nn.BCELoss()
 optimizer = torch.optim.Adam(model.parameters())
-epochs = 10
-
-for epoch in range(epochs):
-    model.train()
-    total_loss = 0
-
-    print(f"Epoch {epoch + 1}/{epochs}")
-
-    # tqdm INSIDE the epoch (batch loop)
-    for X, y, ID in tqdm(train_loader, desc="Training Batches", leave=False):
-        y = y.unsqueeze(1)
-
-        logits = model(X)
-        loss = loss_fn(logits, y)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item()
-
-    # ----- ACCURACIES -----
-    train_acc = accuracy(train_loader)
-    val_acc = accuracy(val_loader)
-
-    print(
-        f"Epoch {epoch + 1}/{epochs} | Loss: {total_loss:.4f} | Train Acc: {train_acc:.4f} | Val Acc: {val_acc:.4f}"
-    )
+device = torch.device("cpu")
+epochs = 2
 
 
-test_acc = accuracy(test_loader)
-print(f"\nFinal Test Accuracy: {test_acc:.4f}")
+train_losses, train_accs, val_losses, val_accs, all_preds, all_labels = run_training_and_testing(
+    model,
+    device=device,
+    optimizer=optimizer,
+    loss_fn=loss_fn,
+    epochs=epochs,
+    train_loader=train_loader,
+    val_loader=val_loader,
+    test_loader=test_loader,
+)
+print(all_labels)
+print(all_preds)
+
+plot_confusion_matrix(all_preds, all_labels)
+
+plot_training_history(train_losses, val_losses, train_accs, val_accs)
+
+
+
