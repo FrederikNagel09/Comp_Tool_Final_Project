@@ -2,8 +2,6 @@ import re
 
 import textstat
 
-# list of things to count
-
 
 def get_word_count(text: str) -> int:
     """Total number of words in the text."""

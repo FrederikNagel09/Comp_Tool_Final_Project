@@ -32,8 +32,8 @@ class LoadDataset(Dataset):
         emb = torch.tensor(self.embeddings[idx], dtype=torch.float32)
         feats = torch.tensor(self.features[idx], dtype=torch.float32)
 
-        X = torch.cat([emb, feats], dim=0)  # final input vector
+        x = torch.cat([emb, feats], dim=0)  # final input vector
         y = torch.tensor(self.y[idx], dtype=torch.float32)
-        ID = self.ids[idx]
+        id = self.ids[idx]
 
-        return X, y, ID
+        return x, y, id
