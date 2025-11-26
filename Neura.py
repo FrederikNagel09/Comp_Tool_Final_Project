@@ -24,7 +24,7 @@ model = NeuralNetwork()
 loss_fn = nn.BCELoss()
 optimizer = torch.optim.Adam(model.parameters())
 device = torch.device("cpu")
-epochs = 2
+epochs = 15
 
 
 train_losses, train_accs, val_losses, val_accs, all_preds, all_labels = run_training_and_testing(
@@ -37,8 +37,6 @@ train_losses, train_accs, val_losses, val_accs, all_preds, all_labels = run_trai
     val_loader=val_loader,
     test_loader=test_loader,
 )
-print(all_labels)
-print(all_preds)
 
 plot_confusion_matrix(all_preds, all_labels)
 

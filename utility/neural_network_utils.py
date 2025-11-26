@@ -19,7 +19,6 @@ import os
 def get_train_test_val_dataloaders(batch_size=32):
 
     df = pl.read_parquet("data/data.parquet").to_pandas()
-    df = df[:100]
     # First split → train + temp
     train_df, temp_df = train_test_split(df, test_size=0.2, random_state=42)
 
