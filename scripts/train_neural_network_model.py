@@ -1,3 +1,20 @@
+"""
+This script trains a neural network model on the processed dataset located at data/data.parquet.
+It uses PyTorch for model definition, training, and evaluation.
+
+After training it runs evaluation on the test set and plots 
+the confusion matrix and training history.
+
+
+Run this script with:
+    python scripts/train_neural_network_model.py
+"""
+
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import torch
 from torch import nn
 
