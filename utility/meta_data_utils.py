@@ -80,6 +80,7 @@ def get_avg_word_length(text: str) -> float:
     words = re.findall(r"\b\w+\b", text)
     return sum(len(w) for w in words) / len(words) if words else 0.0
 
+
 def get_gunning_fog_index(text: str) -> float:
     """Gunning Fog readability index (grade level required)."""
     return textstat.gunning_fog(text)

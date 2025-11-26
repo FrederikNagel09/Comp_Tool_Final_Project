@@ -1,23 +1,18 @@
-import numpy as np
-from sklearn.model_selection import train_test_split
 import os
-import torch
-from torch import nn
-from torch.utils.data import DataLoader
-from dataloader.dataloader import LoadDataset
-import polars as pl
-from sklearn.model_selection import train_test_split
-from tqdm import tqdm
-from tqdm import tqdm
-import torch
-import torch.nn as nn
+
 import matplotlib.pyplot as plt
+import polars as pl
 import seaborn as sns
-from sklearn.metrics import confusion_matrix, accuracy_score
-import os
+import torch
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+from dataloader.dataloader import LoadDataset
+
 
 def get_train_test_val_dataloaders(batch_size=32):
-
     df = pl.read_parquet("data/data.parquet").to_pandas()
     # First split → train + temp
     train_df, temp_df = train_test_split(df, test_size=0.2, random_state=42)
@@ -30,7 +25,9 @@ def get_train_test_val_dataloaders(batch_size=32):
     val_df = pl.from_pandas(val_df)
     test_df = pl.from_pandas(test_df)
 
-    train_loader, val_loader, test_loader = set_up_dataloaders(train_df, val_df, test_df, batch_size=batch_size)
+    train_loader, val_loader, test_loader = set_up_dataloaders(
+        train_df, val_df, test_df, batch_size=batch_size
+    )
 
     return train_loader, val_loader, test_loader
 
@@ -47,7 +44,9 @@ def set_up_dataloaders(train_df, val_df, test_df, batch_size=32):
     return train_loader, val_loader, test_loader
 
 
-def run_training_and_testing(model, device, optimizer, loss_fn, epochs, train_loader, val_loader, test_loader):
+def run_training_and_testing(
+    model, device, optimizer, loss_fn, epochs, train_loader, val_loader, test_loader
+):
     train_losses = []
     train_accs = []
     val_losses = []
@@ -129,7 +128,6 @@ def run_training_and_testing(model, device, optimizer, loss_fn, epochs, train_lo
     return train_losses, train_accs, val_losses, val_accs, all_preds, all_labels
 
 
-
 def plot_confusion_matrix(all_preds, all_labels):
     """
     Plots a confusion matrix with total accuracy in the title.
@@ -145,7 +143,9 @@ def plot_confusion_matrix(all_preds, all_labels):
     plt.savefig("graphs/confusion_matrix.png")
 
 
-def plot_training_history(train_losses, val_losses, train_accs, val_accs, save_path="graphs/training_plot.png"):
+def plot_training_history(
+    train_losses, val_losses, train_accs, val_accs, save_path="graphs/training_plot.png"
+):
     """
     Plots training/validation loss and accuracy, then saves the figure in `graph` folder.
     """
