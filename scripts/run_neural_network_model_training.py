@@ -2,7 +2,7 @@
 This script trains a neural network model on the processed dataset located at data/data.parquet.
 It uses PyTorch for model definition, training, and evaluation.
 
-After training it runs evaluation on the test set and plots 
+After training it runs evaluation on the test set and plots
 the confusion matrix and training history.
 
 
