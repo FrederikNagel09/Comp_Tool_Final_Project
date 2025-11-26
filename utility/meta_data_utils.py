@@ -89,6 +89,12 @@ def get_flesch_reading_ease(text: str) -> float:
     return textstat.flesch_reading_ease(text)
 
 
+def get_punctuation_ratio(text: str) -> float:
+    """Ratio of punctuation marks to total characters."""
+    puncts = re.findall(r"[^\w\s]", text)
+    return len(puncts) / len(text) if text else 0.0
+
+
 def calculate_metadata(text: str) -> dict:
     """Calculate various metadata statistics for the given text."""
     return {
@@ -99,6 +105,7 @@ def calculate_metadata(text: str) -> dict:
         "avg_word_length": get_avg_word_length(text),
         "flesch_reading_ease": get_flesch_reading_ease(text),
         "gunning_fog_index": get_gunning_fog_index(text),
+        "punctuation_ratio": get_punctuation_ratio(text),
     }
 
 
