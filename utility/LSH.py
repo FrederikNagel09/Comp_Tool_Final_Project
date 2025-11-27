@@ -7,14 +7,15 @@ from pathlib import Path
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+import pandas as pd
+import polars as pl
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT))
 print(ROOT)
-
-from utility.utils import preprocess_data
 
 
 class LSH_AI_Detector:
@@ -77,7 +78,7 @@ class LSH_AI_Detector:
 
         # Compute cosine similarity to candidates
         candidate_vectors = self.X[list(candidates)]
-        sims = cosine_similarity([x_new], candidate_vectors)[0]
+        sims = euclidean_distances([x_new], candidate_vectors)[0]
 
         # Pick top k most similar
         best_idx = np.argsort(sims)[::-1][:top_k]
@@ -111,37 +112,45 @@ class LSH_AI_Detector:
         with open(path, "wb") as f:
             pickle.dump(self.hash_tables, f)
 
-    def load_hash_tables(self, path="data/hash_tables.pkl"):
+    def load_hash_tables(self, X, y, path="data/hash_tables.pkl"):
         "Load already made hash tables"
         with open(path, "rb") as f:
             self.hash_tables = pickle.load(f)
 
+        self.X = X
+        self.y = y
+
 
 if __name__ == "__main__":
     # Example usage:
+    #data = np.load("data/A.npy")
+    print("loading data...")
+    df = pl.read_parquet("data/data.parquet",n_rows=10000)
 
-    preprocess_data("data/AI_Human.csv")
-
-    data = np.load("data/A.npy")
+    feature_colums = feature_columns=["word_count","character_count","lexical_diversity","avg_sentence_length","avg_word_length","flesch_reading_ease","gunning_fog_index","punctuation_ratio"]
+    X = np.hstack((df.select(feature_columns),np.array(df["embedding"].to_list())))
+    y = df["generated"].to_numpy()
 
     # Normalise data and split into X and y
     scaler = StandardScaler()
-    X = scaler.fit_transform(data[:, :-1])
-    y = data[:, -1]
+    X_scaled = scaler.fit_transform(X)
+    y_scaled = y
 
     # split into train and test data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_size=0.1, random_state=0)
 
     # create ai detector and train on data
-    detector = LSH_AI_Detector(num_hash_tables=12, num_hash_bits=20)
+    detector = LSH_AI_Detector(num_hash_tables=24, num_hash_bits=18)
     print("Fitting model to data...")
     detector.fit(X, y)
 
     # test on test data
     print("Testing model...")
+    predictions = []
     sum = 0
     for i in range(len(y_test)):
         pred = detector.predict(X_test[i])
+        predictions.append(pred)
         if pred == y_test[i]:
             sum += 1
 
