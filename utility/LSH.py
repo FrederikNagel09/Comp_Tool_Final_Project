@@ -78,7 +78,7 @@ class LSH_AI_Detector:
 
         # Compute cosine similarity to candidates
         candidate_vectors = self.X[list(candidates)]
-        sims = euclidean_distances([x_new], candidate_vectors)[0]
+        sims = cosine_similarity([x_new], candidate_vectors)[0]
 
         # Pick top k most similar
         best_idx = np.argsort(sims)[::-1][:top_k]
