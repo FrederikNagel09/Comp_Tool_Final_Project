@@ -1,12 +1,12 @@
 #!/bin/bash
 #BSUB -J job_name                     
-#BSUB -q gpuv100                      # Queue to submit the job to
-#BSUB -W 100                              # Wall time limit (100 minutes)
+#BSUB -q gpuv100                            # Queue to submit the job to
+#BSUB -W 250                              # Wall time limit (100 minutes)
 #BSUB -n 8                                 # Request 8 cores
 #BSUB -R "rusage[mem=4GB]"                 # 
 #BSUB -R "span[hosts=1]"                   # Request all cores on the same host
-#BSUB -o output.out                        # Standard output redirection
-#BSUB -e output.err                        # Standard error redirection
+#BSUB -o outputs/output_lsh.out                        # Standard output redirection
+#BSUB -e outputs/output_lsh.err                        # Standard error redirection
 
 export OMP_NUM_THREADS=8
 export MKL_NUM_THREADS=8

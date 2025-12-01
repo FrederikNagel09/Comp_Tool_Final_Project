@@ -14,7 +14,7 @@ def main():
     """Complete training pipeline with grid search."""
 
     print("Loading data...")
-    data_path = "data/data_subset.parquet"
+    data_path = "data/data.parquet"
     train_loader, val_loader, test_loader = get_train_test_val_dataloaders(
         batch_size=BATCH_SIZE, data_path=data_path
     )
