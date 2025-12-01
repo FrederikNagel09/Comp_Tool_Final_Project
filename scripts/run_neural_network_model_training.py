@@ -37,7 +37,7 @@ model = NeuralNetwork()
 loss_fn = nn.BCELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 device = torch.device("cpu")
-epochs = 5
+epochs = 25
 
 
 train_losses, train_accs, val_losses, val_accs, all_preds, all_labels = run_training_and_testing(
