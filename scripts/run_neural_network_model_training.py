@@ -27,7 +27,7 @@ from utility.neural_network_utils import (
 from utility.other_utils import get_train_test_val_dataloaders, plot_confusion_matrix
 
 print("Loading data...")
-train_loader, val_loader, test_loader = get_train_test_val_dataloaders(batch_size=BATCH_SIZE)
+train_loader, val_loader, test_loader = get_train_test_val_dataloaders(batch_size=BATCH_SIZE, data_path="data/data.parquet")
 print("Data loaded, and split into train, val, test.")
 
 
@@ -35,9 +35,9 @@ print("Starting training...")
 
 model = NeuralNetwork()
 loss_fn = nn.BCELoss()
-optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 device = torch.device("cpu")
-epochs = 15
+epochs = 5
 
 
 train_losses, train_accs, val_losses, val_accs, all_preds, all_labels = run_training_and_testing(
@@ -51,6 +51,6 @@ train_losses, train_accs, val_losses, val_accs, all_preds, all_labels = run_trai
     test_loader=test_loader,
 )
 
-plot_confusion_matrix(all_preds, all_labels)
+plot_confusion_matrix(all_preds, all_labels, save_path="graphs/confusion_matrix_neural_network.png")
 
 plot_training_history(train_losses, val_losses, train_accs, val_accs)

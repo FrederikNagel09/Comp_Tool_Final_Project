@@ -1,2 +1,2 @@
 best_eps,best_min_samples,best_f1_ai,test_accuracy,confusion_matrix
-19.5,5,0.8235294117647058,0.75,"[[8, 5], [0, 7]]"
+8.0,100,0.0,0.648,"[[648, 0], [352, 0]]"

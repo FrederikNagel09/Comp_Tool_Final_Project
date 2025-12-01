@@ -18,7 +18,7 @@ def dbscan_with_centroids(
     min_samples,
 ):
     # Fit DBSCAN on the training data
-    dbscan = DBSCAN(eps=eps, min_samples=min_samples, n_jobs=-1)
+    dbscan = DBSCAN(eps=eps, min_samples=min_samples, n_jobs=1)
     train_labels_raw = dbscan.fit_predict(X_train)  # -1 = noise
 
     # Get valid (non-noise) clusters

@@ -151,7 +151,7 @@ def plot_training_history(
     val_losses: list[float],
     train_accs: list[float],
     val_accs: list[float],
-    save_path: str = "graphs/training_plot.png",
+    save_path: str = "graphs/training_plot_neural_network.png",
 ) -> None:
     """Generate and save training/validation loss and accuracy plots."""
     os.makedirs(os.path.dirname(save_path), exist_ok=True)

@@ -30,28 +30,21 @@ test_size  = 0.1
 
 #If too slow, make these list smaller
 eps_grid = [
-     6.0,  7.0, 8.0,  8.5,  9.0,  9.5,
-    10.0, 10.5, 11.0, 11.5,
-    12.0, 12.5, 13.0, 13.5,
-    14.0, 14.5, 15.0, 15.5,
-    16.0, 16.5, 17.0, 17.5,
-    18.0, 18.5, 19.0, 19.5,
-    20.0, 22.0, 24.0, 26.0,
-    28.0, 30.0, 32.0, 35.0
+    8, 16.0, 32.0
 ]
 min_samples_grid = [
-     5,  6,  7,  8,  9, 10, 12, 15, 18, 20, 25, 30,
-    40, 50, 60, 75, 100, 150, 200, 300, 500,
-    750,   1000,  1500,  2000,  3000,
-    5000,  7500, 10000, 15000, 20000, 30000
+    100, 1000, 10000
 ]
 
 
 print("loading data...")
 df = pl.read_parquet("data/data.parquet")
 
+# sample first 10.000 rows from data
+df = df.head(200000)
+
 feature_colums = feature_columns=["word_count","character_count","lexical_diversity","avg_sentence_length","avg_word_length","flesch_reading_ease","gunning_fog_index","punctuation_ratio"]
-X = np.hstack((df.select(feature_columns),np.array(df["embedding"].to_list())))
+X = df.select(feature_columns).to_numpy()
 y = df["generated"].to_numpy()
 
 # Normalise data and split into X and y
@@ -74,6 +67,11 @@ X_val, X_test, Y_val, Y_test = train_test_split(
     random_state=random_state,
     stratify=Y_temp,
 )
+
+print("data shapes.")
+print(f"  X_train: {X_train.shape}, Y_train: {Y_train.shape}")
+print(f"  X_val:   {X_val.shape},   Y_val:   {Y_val.shape}")
+print(f"  X_test:  {X_test.shape},  Y_test:  {Y_test.shape}")
 
 #######################################################################################
 print('grid search')
