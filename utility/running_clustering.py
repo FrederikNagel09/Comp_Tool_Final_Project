@@ -48,7 +48,7 @@ min_samples_grid = [
 
 
 print("loading data...")
-df = pl.read_parquet("data/data.parquet",n_rows=10000)
+df = pl.read_parquet("data/data.parquet")
 
 feature_colums = feature_columns=["word_count","character_count","lexical_diversity","avg_sentence_length","avg_word_length","flesch_reading_ease","gunning_fog_index","punctuation_ratio"]
 X = np.hstack((df.select(feature_columns),np.array(df["embedding"].to_list())))
