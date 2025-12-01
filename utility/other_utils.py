@@ -7,6 +7,8 @@ import seaborn as sns
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
+from tqdm import tqdm
+import numpy as np
 
 from dataloader.dataloader import LoadDataset
 
@@ -78,3 +80,20 @@ def get_csv_dataframe(path: str) -> pl.DataFrame:
     Using Polars for better performance on large files.
     """
     return pl.read_csv(path)
+
+
+def dataloader_to_arrays(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Convert PyTorch DataLoader to NumPy arrays for LSH.
+    """
+    x_list = []
+    y_list = []
+
+    for x, y, _ in tqdm(dataloader, desc="Loading batches"):
+        x_list.append(x.numpy())
+        y_list.append(y.numpy())
+
+    x = np.vstack(x_list)
+    y = np.concatenate(y_list)
+
+    return x, y

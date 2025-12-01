@@ -5,7 +5,6 @@ from itertools import product
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
-from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from utility.other_utils import plot_confusion_matrix
@@ -224,23 +223,6 @@ class LocalitySensitiveHashing:
         self.num_hash_bits = model_data["num_hash_bits"]
 
         print(f"Model loaded from {path}")
-
-
-def dataloader_to_arrays(dataloader: DataLoader) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Convert PyTorch DataLoader to NumPy arrays for LSH.
-    """
-    x_list = []
-    y_list = []
-
-    for x, y, _ in tqdm(dataloader, desc="Loading batches"):
-        x_list.append(x.numpy())
-        y_list.append(y.numpy())
-
-    x = np.vstack(x_list)
-    y = np.concatenate(y_list)
-
-    return x, y
 
 
 def run_lsh(
