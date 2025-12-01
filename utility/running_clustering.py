@@ -4,8 +4,11 @@ from Function_for_clustering import (
     majority_vote_predict,
     evaluate_and_save_results,
 )
-
+from sklearn.preprocessing import StandardScaler
 import pandas as pd
+import pandas as pd
+import polars as pl
+
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.cluster import DBSCAN
@@ -42,26 +45,19 @@ min_samples_grid = [
     750,   1000,  1500,  2000,  3000,
     5000,  7500, 10000, 15000, 20000, 30000
 ]
-##################################################################################################
-#
-### Frederik, her kan du loade data...... Ved ikke hvordan du vil have
 
-#Load and split data
 
-# N = number of samples 
-# d = number of features
-X = np.load("X.npy")     # shape (N, d)
-Y = np.load("Y_ids.npy") # shape (N,), binary: 0 = human, 1 = AI
+print("loading data...")
+df = pl.read_parquet("data/data.parquet")
 
-#test case
-X = X[:100]
-Y= Y[:100]
+feature_colums = feature_columns=["word_count","character_count","lexical_diversity","avg_sentence_length","avg_word_length","flesch_reading_ease","gunning_fog_index","punctuation_ratio"]
+X = np.hstack((df.select(feature_columns),np.array(df["embedding"].to_list())))
+y = df["generated"].to_numpy()
 
-print("X shape:", X.shape)
-print("Y shape:", Y.shape)
-
-norms = np.linalg.norm(X, axis=1)
-print("Mean vector norm:", norms.mean(), "Std of norms:", norms.std())
+# Normalise data and split into X and y
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+Y = y
 
 X_train, X_temp, Y_train, Y_temp = train_test_split(
     X,
