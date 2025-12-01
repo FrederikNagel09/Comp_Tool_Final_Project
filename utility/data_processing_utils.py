@@ -11,8 +11,8 @@ sys.path.append(str(ROOT_DIR))
 
 from sentence_transformers import SentenceTransformer  # noqa: E402
 
-from utility.file_utils import get_csv_dataframe  # noqa: E402
 from utility.meta_data_utils import calculate_metadata  # noqa: E402
+from utility.other_utils import get_csv_dataframe  # noqa: E402
 
 # Load a pretrained embedding model
 model = SentenceTransformer("all-MiniLM-L6-v2")

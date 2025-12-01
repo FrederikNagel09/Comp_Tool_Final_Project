@@ -18,17 +18,16 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import torch
 from torch import nn
 
+from config import BATCH_SIZE
 from models.NeuralNetwork import NeuralNetwork
 from utility.neural_network_utils import (
-    get_train_test_val_dataloaders,
-    plot_confusion_matrix,
     plot_training_history,
     run_training_and_testing,
 )
+from utility.other_utils import get_train_test_val_dataloaders, plot_confusion_matrix
 
 print("Loading data...")
-batch_size = 64
-train_loader, val_loader, test_loader = get_train_test_val_dataloaders(batch_size=batch_size)
+train_loader, val_loader, test_loader = get_train_test_val_dataloaders(batch_size=BATCH_SIZE)
 print("Data loaded, and split into train, val, test.")
 
 

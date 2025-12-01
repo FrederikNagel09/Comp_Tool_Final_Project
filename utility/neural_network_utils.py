@@ -1,58 +1,9 @@
 import os
 
 import matplotlib.pyplot as plt
-import pandas as pd
-import polars as pl
-import seaborn as sns
 import torch
-from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-
-from dataloader.dataloader import LoadDataset
-
-
-def get_train_test_val_dataloaders(
-    batch_size: int = 32,
-) -> tuple[DataLoader, DataLoader, DataLoader]:
-    """Load data and create train, validation, and test dataloaders."""
-    df = pl.read_parquet("data/data.parquet").to_pandas()
-
-    train_df, val_df, test_df = split_train_val_test(df)
-
-    train_df = pl.from_pandas(train_df)
-    val_df = pl.from_pandas(val_df)
-    test_df = pl.from_pandas(test_df)
-
-    return set_up_dataloaders(train_df, val_df, test_df, batch_size)
-
-
-def split_train_val_test(
-    df: pd.DataFrame, test_size: float = 0.2, val_size: float = 0.5, random_state: int = 42
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Split dataframe into train (80%), validation (10%), and test (10%) sets."""
-    train_df, temp_df = train_test_split(df, test_size=test_size, random_state=random_state)
-    val_df, test_df = train_test_split(temp_df, test_size=val_size, random_state=random_state)
-    return train_df, val_df, test_df
-
-
-def set_up_dataloaders(
-    train_df: pl.DataFrame,
-    val_df: pl.DataFrame,
-    test_df: pl.DataFrame,
-    batch_size: int = 32,
-) -> tuple[DataLoader, DataLoader, DataLoader]:
-    """Create PyTorch DataLoaders from Polars DataFrames."""
-    train_dataset = LoadDataset(train_df)
-    val_dataset = LoadDataset(val_df)
-    test_dataset = LoadDataset(test_df)
-
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
-    return train_loader, val_loader, test_loader
 
 
 def run_training_and_testing(
@@ -193,24 +144,6 @@ def evaluate_model(
             all_labels.extend(y.cpu().tolist())
 
     return all_preds, all_labels
-
-
-def plot_confusion_matrix(
-    all_preds: list[float], all_labels: list[float], save_path: str = "graphs/confusion_matrix.png"
-) -> None:
-    """Generate and save confusion matrix with accuracy in title."""
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-    cm = confusion_matrix(all_labels, all_preds)
-    acc = accuracy_score(all_labels, all_preds)
-
-    plt.figure(figsize=(6, 5))
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    plt.title(f"Confusion Matrix | Accuracy: {acc:.4f}")
-    plt.savefig(save_path)
-    plt.close()
 
 
 def plot_training_history(

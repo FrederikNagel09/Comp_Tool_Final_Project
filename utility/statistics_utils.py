@@ -14,7 +14,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
-from utility.file_utils import get_csv_dataframe
+from utility.other_utils import get_csv_dataframe
 
 NUMERIC_COLS = [
     "word_count",
