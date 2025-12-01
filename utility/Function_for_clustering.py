@@ -7,6 +7,8 @@ from sklearn.metrics import (
     confusion_matrix,
     f1_score,
 )
+from tqdm import tqdm
+from itertools import product
 
 
 def dbscan_with_centroids(
@@ -80,34 +82,33 @@ def gridsearch_dbscan(
     best_eps = None
     best_ms = None
 
-    for min_samples in min_samples_grid:
-        for eps in eps_grid:
-            print('min_samlple,eps:',(min_samples,eps))
-            # Run DBSCAN + centroid assignment on validation set
-            val_cluster_ids, centroids = dbscan_with_centroids(
-                X_train,
-                X_val,
-                eps=eps,
-                min_samples=min_samples,
-            )
+    for min_samples, eps in tqdm(product(min_samples_grid, eps_grid), total=len(min_samples_grid)*len(eps_grid)):
+        print('min_sample, eps:', (min_samples, eps))
+        # Run DBSCAN + centroid assignment on validation set
+        val_cluster_ids, centroids = dbscan_with_centroids(
+            X_train,
+            X_val,
+            eps=eps,
+            min_samples=min_samples,
+        )
             
-            if centroids.shape[0] == 0 or val_cluster_ids.size == 0:
-                continue
+        if centroids.shape[0] == 0 or val_cluster_ids.size == 0:
+            continue
 
-            # Majority vote: cluster -> class (0/1)
-            cluster_to_class, _ = majority_vote_predict(val_cluster_ids,Y_val)
+        # Majority vote: cluster -> class (0/1)
+        cluster_to_class, _ = majority_vote_predict(val_cluster_ids,Y_val)
 
-            # Predict labels for validation set
-            Y_val_pred = np.array([cluster_to_class[c] for c in val_cluster_ids])
+        # Predict labels for validation set
+        Y_val_pred = np.array([cluster_to_class[c] for c in val_cluster_ids])
 
-            # Metrics
-            f1_ai = f1_score(Y_val, Y_val_pred, pos_label=1, zero_division=0)
+        # Metrics
+        f1_ai = f1_score(Y_val, Y_val_pred, pos_label=1, zero_division=0)
     
-            # Track best F1
-            if f1_ai > best_f1:
-                best_f1 = f1_ai
-                best_eps = float(eps)
-                best_ms  = int(min_samples)
+        # Track best F1
+        if f1_ai > best_f1:
+            best_f1 = f1_ai
+            best_eps = float(eps)
+            best_ms  = int(min_samples)
 
 
     return best_eps, best_ms, best_f1
