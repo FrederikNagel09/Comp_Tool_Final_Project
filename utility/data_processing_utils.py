@@ -11,7 +11,7 @@ sys.path.append(str(ROOT_DIR))
 
 from sentence_transformers import SentenceTransformer  # noqa: E402
 
-from utility.meta_data_utils import calculate_metadata  # noqa: E402
+from utility.metadata_calculation_utils import calculate_metadata  # noqa: E402
 from utility.other_utils import get_csv_dataframe  # noqa: E402
 
 # Load a pretrained embedding model
@@ -76,7 +76,6 @@ def add_unique_id(df: pl.DataFrame, column_name: str = "id") -> pl.DataFrame:
     return df.with_columns(pl.arange(0, df.height).alias(column_name))
 
 
-# Chunk by tokens and extend dataset
 def chunk_by_tokens(
     df: pl.DataFrame, token_limit: int = 250, min_tokens: int = 100
 ) -> pl.DataFrame:

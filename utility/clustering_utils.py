@@ -21,8 +21,8 @@ from utility.other_utils import plot_confusion_matrix
 
 
 def fit_kmeans_and_assign_clusters(
-    X_train: np.ndarray,
-    X_eval: np.ndarray,
+    x_train: np.ndarray,
+    x_eval: np.ndarray,
     n_clusters: int,
     random_state: int = 42,
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -46,13 +46,13 @@ def fit_kmeans_and_assign_clusters(
         n_init=10,
         max_iter=300,
     )
-    kmeans.fit(X_train)
+    kmeans.fit(x_train)
 
     # Get centroids from fitted model
     cluster_centroids = kmeans.cluster_centers_
 
     # Assign evaluation samples to nearest centroid
-    eval_cluster_assignments = kmeans.predict(X_eval)
+    eval_cluster_assignments = kmeans.predict(x_eval)
 
     return eval_cluster_assignments, cluster_centroids
 
@@ -101,8 +101,8 @@ def assign_cluster_labels_by_majority_vote(
 
 
 def evaluate_single_kmeans_config(
-    X_train: np.ndarray,
-    X_val: np.ndarray,
+    x_train: np.ndarray,
+    x_val: np.ndarray,
     y_val: np.ndarray,
     n_clusters: int,
     random_state: int = 42,
@@ -122,8 +122,8 @@ def evaluate_single_kmeans_config(
     """
     # Fit K-means and assign validation samples
     val_cluster_assignments, _ = fit_kmeans_and_assign_clusters(
-        X_train=X_train,
-        X_eval=X_val,
+        x_train=x_train,
+        x_eval=x_val,
         n_clusters=n_clusters,
         random_state=random_state,
     )
@@ -141,8 +141,8 @@ def evaluate_single_kmeans_config(
 
 
 def grid_search_kmeans(
-    X_train: np.ndarray,
-    X_val: np.ndarray,
+    x_train: np.ndarray,
+    x_val: np.ndarray,
     y_val: np.ndarray,
     n_clusters_grid: list[int],
     random_state: int = 42,
@@ -162,9 +162,9 @@ def grid_search_kmeans(
 
     Returns:
         best_n_clusters: Best number of clusters found
-        best_f1_score: Best F1 score achieved
+        best_acc_score: Best accuracy score achieved
     """
-    best_f1_score = -1.0
+    best_acc_score = -1.0
     best_n_clusters = None
 
     print(f"\nStarting grid search over {len(n_clusters_grid)} configurations...")
@@ -174,22 +174,22 @@ def grid_search_kmeans(
 
         # Evaluate this configuration
         f1_score_ai = evaluate_single_kmeans_config(
-            X_train=X_train,
-            X_val=X_val,
+            x_train=x_train,
+            x_val=x_val,
             y_val=y_val,
             n_clusters=n_clusters,
             random_state=random_state,
         )
 
-        print(f"    F1 score (AI): {f1_score_ai:.4f}")
+        print(f"Accuracy: {f1_score_ai:.4f}")
 
         # Update best configuration if improved
-        if f1_score_ai > best_f1_score:
-            best_f1_score = f1_score_ai
+        if f1_score_ai > best_acc_score:
+            best_acc_score = f1_score_ai
             best_n_clusters = n_clusters
             print("    ✓ New best configuration!")
 
-    return best_n_clusters, best_f1_score
+    return best_n_clusters, best_acc_score
 
 
 def evaluate_and_save_results(
