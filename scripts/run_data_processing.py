@@ -74,7 +74,7 @@ def run_data_processing(mode: str, path: str, num_of_samples: int) -> None:
     print("Embedding calculation completed.")
 
     # Save updated DataFrame to Parquet
-    df.write_parquet(path+"data_subset.parquet")
+    df.write_parquet(path + "data_subset.parquet")
 
 
 if __name__ == "__main__":

@@ -1,41 +1,15 @@
-# Comp_Tool_Final_Project
+## Overview:
 
-## Follow these instructions to set up project
-1) make sure your directory is this project folder
-run in terminal
-pwd
-should look like .../Comp_Tool_Final_Project
+This project's purpose it to build three diferent methods for classification on a dataset with text samples which are either human or AI written. 
+Additionally extensive data pre-processing steps are done to merge the four datasets we found, clean them and run them through a BERT embedder for embedding extraction. 
 
-2) Initialize virtual environment:
-run in terminal 
-python3 -m venv .venv
-source .venv/bin/activate
+The entire project is build up from scipts found in scripts/ and the entire project can be run from the notebook main.ipynb
 
-3) Install and sync project dependencies
-run in terminal 
-pip install uv
-uv pip sync
+NOTE: We have provided a small (100 samples) subset of our full data in subset_data/ and the code in main.ipynb has been modified so running it will use the subset dataset. 
 
+Feel free to contact s204213@dtu.dk if you may have any questions regarding the code.
 
-## Makefile instructions
-run in terminal:
-make check
-- This runs both ruff format and ruff check, automatically formatting code to industry standards and giving warnings where changes should be made to follow proper formatting and good coding etiquette.
-
-
-
-## Project Ideas: 
-- TF-IDF → LogisticRegression
-    - Could be graph with k-means classification instead of logisticregression
-    - Could be more powerfull DL model than logistic regression
-    - TF-IDF: teat every text sample as a "document" and use it to create an embedding vector for each text
-
-- Use other embedding method + some classification method
-
-- Use confusion matrix to showcase accuracy of classification
-
-
-
+Below is a list of the datasets we used
 ## Datasets: 
 - https://www.kaggle.com/datasets/navjotkaushal/human-vs-ai-generated-essays/data
 - https://www.kaggle.com/datasets/pratyushpuri/ai-vs-human-content-detection-1000-record-in-2025
@@ -43,7 +17,3 @@ make check
 
 This is the big dataset
 - https://www.kaggle.com/datasets/shanegerami/ai-vs-human-text
-
-- We could use the big + one other to train and the others to validate? 
-- We do need to check that none of the text samples across all datasets are identical.
-- Look at code section in kaggle of each dataset and find inspiration of what others have done. 
