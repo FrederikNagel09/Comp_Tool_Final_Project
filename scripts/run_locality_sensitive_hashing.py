@@ -7,7 +7,7 @@ from utility.locality_sensitive_hashing_utils import (
     evaluate_and_plot,
     grid_search_lsh,
 )
-from utility.other_utils import get_train_test_val_dataloaders, dataloader_to_arrays
+from utility.other_utils import dataloader_to_arrays, get_train_test_val_dataloaders
 
 
 def main():
@@ -31,11 +31,7 @@ def main():
     print(f"  Test:  {feature_matrix_test.shape}")
 
     # Define parameter grid
-    param_grid = {
-        "num_hash_tables": [16, 24, 32], 
-        "num_hash_bits": [16, 18], 
-        "top_k": [10, 15]
-    }
+    param_grid = {"num_hash_tables": [16, 24, 32], "num_hash_bits": [16, 18], "top_k": [10, 15]}
 
     # Run grid search
     print("\nStarting grid search for LSH hyperparameters...")

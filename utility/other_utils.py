@@ -1,6 +1,7 @@
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import polars as pl
 import seaborn as sns
@@ -8,7 +9,6 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-import numpy as np
 
 from dataloader.dataloader import LoadDataset
 

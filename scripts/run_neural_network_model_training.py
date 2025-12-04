@@ -27,7 +27,9 @@ from utility.neural_network_utils import (
 from utility.other_utils import get_train_test_val_dataloaders, plot_confusion_matrix
 
 print("Loading data...")
-train_loader, val_loader, test_loader = get_train_test_val_dataloaders(batch_size=BATCH_SIZE, data_path="data/data.parquet")
+train_loader, val_loader, test_loader = get_train_test_val_dataloaders(
+    batch_size=BATCH_SIZE, data_path="data/data.parquet"
+)
 print("Data loaded, and split into train, val, test.")
 
 
