@@ -14,24 +14,23 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
+from config import NUMERIC_COLS, STANDARD_COLS
 from utility.other_utils import get_csv_dataframe
 
-NUMERIC_COLS = [
-    "word_count",
-    "character_count",
-    "lexical_diversity",
-    "avg_sentence_length",
-    "avg_word_length",
-    "flesch_reading_ease",
-    "gunning_fog_index",
-    "punctuation_ratio",
-]
 
-
-def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_data(path: str, subset: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load raw and processed datasets."""
-    df_before = get_csv_dataframe("data/Merged_dataset.csv")
-    df_after = pl.read_parquet("data/data.parquet").to_pandas()
+
+    data_path_before = os.path.join(path, "Merged_dataset.csv")
+    if subset:
+        data_path_after = os.path.join(path, "data_subset.parquet")
+        data_path_before = os.path.join(path, "merged_dataset_subset.csv")
+    else:
+        data_path_after = os.path.join(path, "data.parquet")
+        data_path_before = os.path.join(path, "Merged_dataset.csv")
+
+    df_before = get_csv_dataframe(data_path_before)
+    df_after = pl.read_parquet(data_path_after).to_pandas()
     return df_before, df_after
 
 
@@ -65,7 +64,16 @@ def plot_text_length_histogram(
 def display_basic_statistics(df: pd.DataFrame, stage: str) -> None:
     """Display descriptive statistics for numeric columns."""
     print(f"Basic statistics {stage} processing:")
-    display(df[NUMERIC_COLS].describe())
+    if stage == "before":
+        display(df[STANDARD_COLS].describe())
+    else:
+        print("Human data (generated = 0):")
+        human_data = df[df["generated"] == 0]
+        display(human_data[NUMERIC_COLS].describe())
+
+        print("\nAI data (generated = 1):")
+        ai_data = df[df["generated"] == 1]
+        display(ai_data[NUMERIC_COLS].describe())
 
 
 def display_label_distribution(df: pd.DataFrame, stage: str) -> None:

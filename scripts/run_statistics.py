@@ -1,3 +1,22 @@
+"""
+Script to run statistical analysis on the dataset before and after processing.
+
+We do a simple histogram of text lengths,
+Then display basic statistics and label distributions for the data before we process it.
+
+Then a PCA is performed on the processed data, and plotted in 2D space,
+further with the explained variance of each component.
+
+Lastly we display basic statistics and label distributions for the processed data.
+Here we split the data into the human written and AI written, so the basic statistics for each are
+displayed and easilier compared.
+
+run with:
+    python scripts/run_statistics.py --path subset_data/ --subset True
+
+"""
+
+import argparse
 import os
 import sys
 
@@ -17,10 +36,10 @@ from utility.statistics_utils import (
 )
 
 
-def main() -> None:
+def main(path: str, subset: bool) -> None:
     """Execute complete analysis pipeline."""
     # Load data
-    df_before, df_after = load_data()
+    df_before, df_after = load_data(path, subset)
 
     # Text length analysis
     text_lengths = compute_text_lengths(df_before)
@@ -45,4 +64,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    # path to data
+    parser.add_argument("--subset", required=True)
+    parser.add_argument("--path", type=str, default="data/")
+    args = parser.parse_args()
+
+    main(args.path, args.subset)
