@@ -16,3 +16,9 @@ STANDARD_COLS = [
     "generated",
     "id",
 ]
+
+TRAIN_SIZE = 0.8
+VAL_SIZE = 0.1
+TEST_SIZE = 0.1
+RANDOM_STATE = 42
+N_CLUSTERS_GRID = [2, 30, 100]

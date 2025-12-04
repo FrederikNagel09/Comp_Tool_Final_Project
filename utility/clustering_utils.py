@@ -12,8 +12,10 @@ import sys
 
 import numpy as np
 import pandas as pd
+import polars as pl
 from sklearn.cluster import KMeans
 from sklearn.metrics import f1_score
+from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -187,7 +189,7 @@ def grid_search_kmeans(
         if f1_score_ai > best_acc_score:
             best_acc_score = f1_score_ai
             best_n_clusters = n_clusters
-            print("    ✓ New best configuration!")
+            print("New best configuration!")
 
     return best_n_clusters, best_acc_score
 
@@ -235,4 +237,100 @@ def evaluate_and_save_results(
     results_dataframe.to_csv(output_filepath, index=False)
     print(f"\nResults saved to: {output_filepath}")
 
-    return results_dataframe
+
+def load_and_prepare_data(
+    data_path: str,
+    feature_columns: list[str] = None,
+) -> tuple:
+    """
+    Load data from parquet file and extract features and labels.
+
+    Args:
+        data_path: Path to parquet file
+        n_samples: Number of samples to load (None = all samples)
+        feature_columns: List of feature column names
+
+    Returns:
+        X: Feature matrix, shape (n_samples, n_features)
+        y: Label vector, shape (n_samples,)
+    """
+    print(f"Loading data from: {data_path}")
+
+    # Default feature columns
+    if feature_columns is None:
+        feature_columns = [
+            "word_count",
+            "character_count",
+            "lexical_diversity",
+            "avg_sentence_length",
+            "avg_word_length",
+            "flesch_reading_ease",
+            "gunning_fog_index",
+            "punctuation_ratio",
+        ]
+
+    # Load parquet file
+    df = pl.read_parquet(data_path)
+
+    # Extract features and labels
+    x = np.hstack((df.select(feature_columns).to_numpy(), np.array(df["embedding"].to_list())))
+    y = df["generated"].to_numpy()
+
+    print(f"Feature matrix shape: {x.shape}")
+    print(f"Label distribution: {np.bincount(y)}")
+
+    return x, y
+
+
+def split_data(
+    x: np.ndarray,
+    y: np.ndarray,
+    train_size: float,
+    val_size: float,
+    test_size: float,
+    random_state: int,
+) -> tuple:
+    """
+    Split data into train, validation, and test sets.
+
+    Args:
+        X: Feature matrix
+        y: Label vector
+        train_size: Proportion for training
+        val_size: Proportion for validation
+        test_size: Proportion for testing
+        random_state: Random seed
+
+    Returns:
+        X_train, X_val, X_test, y_train, y_val, y_test
+    """
+    # Verify sizes sum to 1
+    assert abs(train_size + val_size + test_size - 1.0) < 1e-6, (
+        "train_size, val_size, and test_size must sum to 1.0"
+    )
+
+    # First split: separate training set
+    x_train, x_temp, y_train, y_temp = train_test_split(
+        x,
+        y,
+        test_size=(1 - train_size),
+        random_state=random_state,
+        stratify=y,
+    )
+
+    # Second split: separate validation and test sets
+    relative_test_size = test_size / (test_size + val_size)
+    x_val, x_test, y_val, y_test = train_test_split(
+        x_temp,
+        y_temp,
+        test_size=relative_test_size,
+        random_state=random_state,
+        stratify=y_temp,
+    )
+
+    print("\nData split sizes:")
+    print(f"  Training:   {x_train.shape[0]:6d} samples ({train_size:.1%})")
+    print(f"  Validation: {x_val.shape[0]:6d} samples ({val_size:.1%})")
+    print(f"  Test:       {x_test.shape[0]:6d} samples ({test_size:.1%})")
+
+    return x_train, x_val, x_test, y_train, y_val, y_test
