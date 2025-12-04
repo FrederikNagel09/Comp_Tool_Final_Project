@@ -21,13 +21,14 @@ from utility.other_utils import get_csv_dataframe
 def load_data(path: str, subset: bool) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load raw and processed datasets."""
 
-    data_path_before = os.path.join(path, "Merged_dataset.csv")
+    base_path = os.path.dirname(path) + "/"
+
     if subset:
-        data_path_after = os.path.join(path, "data_subset.parquet")
-        data_path_before = os.path.join(path, "merged_dataset_subset.csv")
+        data_path_after = os.path.join(base_path, "data_subset.parquet")
+        data_path_before = os.path.join(base_path, "Merged_dataset_subset.csv")
     else:
-        data_path_after = os.path.join(path, "data.parquet")
-        data_path_before = os.path.join(path, "Merged_dataset.csv")
+        data_path_after = os.path.join(base_path, "data.parquet")
+        data_path_before = os.path.join(base_path, "Merged_dataset.csv")
 
     df_before = get_csv_dataframe(data_path_before)
     df_after = pl.read_parquet(data_path_after).to_pandas()
@@ -43,7 +44,7 @@ def plot_text_length_histogram(
     text_lengths: list[int],
     min_len: int = 100,
     max_len: int = 1000,
-    save_path: str = "graphs/text_length_histogram.png",
+    save_path: str = "results/graphs/text_length_histogram.png",
 ) -> None:
     """Create and save histogram of text lengths with cutoff lines."""
     sns.set(style="whitegrid")
@@ -143,7 +144,7 @@ def display_pca_variance(pca: PCA) -> None:
 def plot_pca_scatter(
     pca_result: np.ndarray,
     labels: pd.Series,
-    save_path: str = "graphs/embedding_pca_scatterplot.png",
+    save_path: str = "results/graphs/embedding_pca_scatterplot.png",
 ) -> None:
     """Create and save PCA scatter plot colored by labels."""
     cmap = ListedColormap(["blue", "red"])

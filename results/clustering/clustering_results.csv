@@ -1,2 +1,2 @@
 best_n_clusters,validation_accuracy,test_accuracy,test_f1_score
-100,0.95,0.95,0.9333333333333333
+100,1.0,0.95,0.9333333333333333
