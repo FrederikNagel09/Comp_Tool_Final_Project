@@ -215,7 +215,9 @@ def evaluate_and_save_results(
         results_dataframe: DataFrame containing all results
     """
     # Compute confusion matrix
-    plot_confusion_matrix(y_test, y_predicted, save_path="graphs/confusion_matrix_kmeans.png")
+    plot_confusion_matrix(
+        y_test, y_predicted, save_path="results/graphs/confusion_matrix_kmeans.png"
+    )
 
     # Compute test accuracy
     test_accuracy = np.mean(y_predicted == y_test)
